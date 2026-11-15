@@ -1,0 +1,592 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { SERVICES, PACKAGES, GALLERY_ITEMS, BLOG_POSTS } from '../../data/defaultContent';
+---
+
+<AdminLayout title="Dashboard Ringkasan">
+  <div class="space-y-6 text-left">
+    
+    <!-- Welcome Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
+      <div>
+        <h1 class="font-heading font-black text-2xl sm:text-3xl uppercase tracking-wider text-slate-900 flex items-center gap-2.5">
+          <i class="fas fa-chart-pie text-[#0A3832]"></i>
+          <span>DASHBOARD RINGKASAN</span>
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          Pusat kendali konten, katalog paket pilihan, galeri dokumentasi, artikel, dan leads konsultasi Provider Outbound Batu Malang.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <a
+          href="/admin/profil"
+          class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold border border-slate-200 shadow-xs transition-colors"
+        >
+          <i class="fas fa-user-cog text-[#0A3832]"></i>
+          <span>Profil Admin</span>
+        </a>
+        <a
+          href="/admin/leads"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0A3832] hover:bg-[#0D4940] text-white font-bold text-xs uppercase tracking-wider transition-all shadow-sm hover:scale-105"
+        >
+          <i class="fas fa-inbox text-emerald-300"></i>
+          <span>Cek Leads Baru</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Live Indonesian Clock & Interactive Calendar Widgets (Inspired by Reference Dashboard) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      
+      <!-- Card 1: Waktu Indonesia Real-time & Sapaan Admin (7 Cols) -->
+      <div class="lg:col-span-7 rounded-2xl bg-gradient-to-br from-[#0A3832] via-[#0E463E] to-[#072B26] text-white p-6 sm:p-7 shadow-sm border border-[#0A3832] relative overflow-hidden flex flex-col justify-between">
+        
+        <!-- Background subtle glow/mesh pattern -->
+        <div class="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-emerald-400/10 blur-2xl pointer-events-none"></div>
+        <div class="absolute right-12 top-4 w-28 h-28 rounded-full bg-emerald-300/5 blur-xl pointer-events-none"></div>
+
+        <div class="relative z-10 space-y-4">
+          <!-- Top Tag: Live Indonesia Status -->
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-emerald-200 text-xs font-bold border border-white/15">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span>● WAKTU INDONESIA REAL-TIME</span>
+            </span>
+
+            <span class="text-[11px] text-emerald-200/80 font-medium flex items-center gap-1.5">
+              <i class="fas fa-map-marker-alt text-emerald-300"></i>
+              <span>Kota Batu &amp; Malang, Jawa Timur</span>
+            </span>
+          </div>
+
+          <!-- Dynamic Greeting & Live Clock -->
+          <div>
+            <div id="live-greeting" class="text-sm sm:text-base font-semibold text-emerald-100 flex items-center gap-2">
+              <span>Selamat Datang, Super Admin 👋</span>
+            </div>
+
+            <!-- Big Digital Clock -->
+            <div class="mt-2 flex items-baseline gap-3">
+              <div id="live-clock-time" class="font-heading font-black text-4xl sm:text-5xl text-white tracking-wider font-mono drop-shadow-sm">
+                --:--:-- WIB
+              </div>
+            </div>
+
+            <!-- Full Date (Indonesian) -->
+            <div id="live-clock-date" class="mt-2 text-sm sm:text-base text-emerald-200 font-medium">
+              Memuat kalender Indonesia...
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom System Status Strip -->
+        <div class="relative z-10 mt-6 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs text-emerald-100/90">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span>Zona Waktu: <strong>WIB (GMT+7)</strong></span>
+          </div>
+          <div class="flex items-center gap-1.5 text-emerald-200/80">
+            <i class="fas fa-shield-alt text-emerald-300"></i>
+            <span>Sistem Operasional Outbound Terpantau Siap</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Kalender Interaktif Real-time (5 Cols) -->
+      <div class="lg:col-span-5 rounded-2xl bg-white p-5 sm:p-6 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+        
+        <div>
+          <!-- Calendar Header & Navigation Controls -->
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-emerald-50 text-[#0A3832] flex items-center justify-center font-bold text-sm">
+                <i class="far fa-calendar-alt"></i>
+              </div>
+              <div>
+                <h3 id="cal-month-year" class="font-heading font-black text-slate-800 text-sm uppercase tracking-wider">
+                  Bulan 2026
+                </h3>
+                <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Kalender Interaktif</span>
+              </div>
+            </div>
+
+            <!-- Month Switcher Controls -->
+            <div class="flex items-center gap-1">
+              <button
+                type="button"
+                id="cal-prev-btn"
+                class="w-7 h-7 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 flex items-center justify-center text-xs transition-colors"
+                title="Bulan Sebelumnya"
+              >
+                <i class="fas fa-chevron-left text-[10px]"></i>
+              </button>
+              <button
+                type="button"
+                id="cal-today-btn"
+                class="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-[#0A3832] text-[10px] font-bold border border-emerald-200 transition-colors"
+                title="Kembali ke Hari Ini"
+              >
+                Hari Ini
+              </button>
+              <button
+                type="button"
+                id="cal-next-btn"
+                class="w-7 h-7 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 flex items-center justify-center text-xs transition-colors"
+                title="Bulan Berikutnya"
+              >
+                <i class="fas fa-chevron-right text-[10px]"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Day of Week Header -->
+          <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-3 pb-1">
+            <span class="text-rose-500">Min</span>
+            <span>Sen</span>
+            <span>Sel</span>
+            <span>Rab</span>
+            <span>Kam</span>
+            <span>Jum</span>
+            <span class="text-emerald-700">Sab</span>
+          </div>
+
+          <!-- Dynamic Calendar Grid of Dates -->
+          <div id="cal-dates-grid" class="grid grid-cols-7 gap-1 text-center text-xs mt-1">
+            <!-- Populated via script -->
+          </div>
+        </div>
+
+        <!-- Selected Date Info Footer -->
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <div class="flex items-center gap-1.5 truncate">
+            <i class="fas fa-calendar-check text-[#0A3832]"></i>
+            <span id="cal-selected-info" class="font-semibold text-slate-700 truncate">
+              Hari ini: Terpilih
+            </span>
+          </div>
+          <span class="inline-flex items-center gap-1 text-emerald-700 font-semibold text-[11px] flex-shrink-0">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+            <span>Jadwal Aktif</span>
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Stats Grid (White Cards with Slate Typography & Emerald Badges) -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      
+      <!-- Layanan Aktif -->
+      <a href="/admin/layanan" class="rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-emerald-300 p-5 space-y-3 transition-all group block shadow-xs hover:shadow-md">
+        <div class="flex items-center justify-between">
+          <div class="text-[11px] uppercase font-bold text-slate-500 tracking-wider">Layanan Utama</div>
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-[#0A3832] flex items-center justify-center font-bold group-hover:bg-[#0A3832] group-hover:text-white transition-colors">
+            <i class="fas fa-briefcase text-xs group-hover:text-white transition-colors"></i>
+          </div>
+        </div>
+        <div class="font-heading font-black text-3xl text-slate-900">
+          {SERVICES.length}
+        </div>
+        <div class="text-[11px] text-emerald-700 font-semibold flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+          <span>4 Kategori Layanan Aktif</span>
+        </div>
+      </a>
+
+      <!-- Paket Pilihan Outbound -->
+      <a href="/admin/paket" class="rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-emerald-300 p-5 space-y-3 transition-all group block shadow-xs hover:shadow-md">
+        <div class="flex items-center justify-between">
+          <div class="text-[11px] uppercase font-bold text-slate-500 tracking-wider">Paket Pilihan</div>
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-[#0A3832] flex items-center justify-center font-bold group-hover:bg-[#0A3832] group-hover:text-white transition-colors">
+            <i class="fas fa-box-open text-xs group-hover:text-white transition-colors"></i>
+          </div>
+        </div>
+        <div class="font-heading font-black text-3xl text-slate-900">
+          {PACKAGES.length}
+        </div>
+        <div class="text-[11px] text-emerald-700 font-semibold flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+          <span>Corporate, Gathering &amp; Adventure</span>
+        </div>
+      </a>
+
+      <!-- Foto Galeri Dokumentasi -->
+      <a href="/admin/galeri" class="rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-emerald-300 p-5 space-y-3 transition-all group block shadow-xs hover:shadow-md">
+        <div class="flex items-center justify-between">
+          <div class="text-[11px] uppercase font-bold text-slate-500 tracking-wider">Galeri Foto</div>
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-[#0A3832] flex items-center justify-center font-bold group-hover:bg-[#0A3832] group-hover:text-white transition-colors">
+            <i class="fas fa-camera text-xs group-hover:text-white transition-colors"></i>
+          </div>
+        </div>
+        <div class="font-heading font-black text-3xl text-slate-900">
+          {GALLERY_ITEMS.length}
+        </div>
+        <div class="text-[11px] text-emerald-700 font-semibold flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+          <span>WebP Asli (&lt; 100 KB)</span>
+        </div>
+      </a>
+
+      <!-- Artikel Blog -->
+      <a href="/admin/blog" class="rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-emerald-300 p-5 space-y-3 transition-all group block shadow-xs hover:shadow-md">
+        <div class="flex items-center justify-between">
+          <div class="text-[11px] uppercase font-bold text-slate-500 tracking-wider">Artikel &amp; Tips</div>
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-[#0A3832] flex items-center justify-center font-bold group-hover:bg-[#0A3832] group-hover:text-white transition-colors">
+            <i class="fas fa-feather-alt text-xs group-hover:text-white transition-colors"></i>
+          </div>
+        </div>
+        <div class="font-heading font-black text-3xl text-slate-900">
+          {BLOG_POSTS.length}
+        </div>
+        <div class="text-[11px] text-emerald-700 font-semibold flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+          <span>Penulis: Arby Ardiansyah</span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Quick Action Shortcuts -->
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="font-heading font-bold text-sm uppercase tracking-wider text-slate-800 flex items-center gap-2">
+          <i class="fas fa-th-large text-[#0A3832]"></i>
+          <span>Akses Cepat Pengelolaan Halaman &amp; Konten</span>
+        </h2>
+        <a href="/admin/halaman" class="text-xs text-[#0A3832] hover:underline font-bold transition-colors">
+          Lihat Semua Halaman →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        
+        <a
+          href="/admin/halaman/beranda"
+          class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-emerald-400 hover:shadow-md transition-all text-center space-y-2 group shadow-xs"
+        >
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#0A3832] mx-auto flex items-center justify-center font-bold group-hover:bg-[#0A3832] group-hover:text-white transition-colors">
+            <i class="fas fa-home text-sm group-hover:text-white transition-colors"></i>
+          </div>
+          <div class="text-xs font-bold text-slate-800 uppercase tracking-wider">Edit Beranda</div>
+          <div class="text-[10px] text-slate-400">Hero &amp; Our Services</div>
+        </a>
+
+        <a
+          href="/admin/layanan"
+          class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-emerald-400 hover:shadow-md transition-all text-center space-y-2 group shadow-xs"
+        >
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#0A3832] mx-auto flex items-center justify-center font-bold group-hover:bg-[#0A3832] group-hover:text-white transition-colors">
+            <i class="fas fa-briefcase text-sm group-hover:text-white transition-colors"></i>
+          </div>
+          <div class="text-xs font-bold text-slate-800 uppercase tracking-wider">Kelola Layanan</div>
+          <div class="text-[10px] text-slate-400">4 Modul Layanan</div>
+        </a>
+
+        <a
+          href="/admin/paket"
+          class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-emerald-400 hover:shadow-md transition-all text-center space-y-2 group shadow-xs"
+        >
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#0A3832] mx-auto flex items-center justify-center font-bold group-hover:bg-[#0A3832] group-hover:text-white transition-colors">
+            <i class="fas fa-box-open text-sm group-hover:text-white transition-colors"></i>
+          </div>
+          <div class="text-xs font-bold text-slate-800 uppercase tracking-wider">Paket Pilihan</div>
+          <div class="text-[10px] text-slate-400">16 Paket Outbound</div>
+        </a>
+
+        <a
+          href="/admin/galeri"
+          class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-emerald-400 hover:shadow-md transition-all text-center space-y-2 group shadow-xs"
+        >
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#0A3832] mx-auto flex items-center justify-center font-bold group-hover:bg-[#0A3832] group-hover:text-white transition-colors">
+            <i class="fas fa-camera text-sm group-hover:text-white transition-colors"></i>
+          </div>
+          <div class="text-xs font-bold text-slate-800 uppercase tracking-wider">Upload Galeri</div>
+          <div class="text-[10px] text-slate-400">Target &lt; 100 KB WebP</div>
+        </a>
+
+        <a
+          href="/admin/halaman/tentang-kami"
+          class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-emerald-400 hover:shadow-md transition-all text-center space-y-2 group shadow-xs"
+        >
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#0A3832] mx-auto flex items-center justify-center font-bold group-hover:bg-[#0A3832] group-hover:text-white transition-colors">
+            <i class="fas fa-users text-sm group-hover:text-white transition-colors"></i>
+          </div>
+          <div class="text-xs font-bold text-slate-800 uppercase tracking-wider">Tentang Kami</div>
+          <div class="text-[10px] text-slate-400">Profil &amp; Tim Fasilitator</div>
+        </a>
+
+        <a
+          href="/admin/halaman/kontak"
+          class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-emerald-400 hover:shadow-md transition-all text-center space-y-2 group shadow-xs"
+        >
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#0A3832] mx-auto flex items-center justify-center font-bold group-hover:bg-[#0A3832] group-hover:text-white transition-colors">
+            <i class="fas fa-phone-alt text-sm group-hover:text-white transition-colors"></i>
+          </div>
+          <div class="text-xs font-bold text-slate-800 uppercase tracking-wider">Halaman Kontak</div>
+          <div class="text-[10px] text-slate-400">WhatsApp &amp; Alamat Batu</div>
+        </a>
+
+        <a
+          href="/admin/blog"
+          class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-emerald-400 hover:shadow-md transition-all text-center space-y-2 group shadow-xs"
+        >
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#0A3832] mx-auto flex items-center justify-center font-bold group-hover:bg-[#0A3832] group-hover:text-white transition-colors">
+            <i class="fas fa-feather-alt text-sm group-hover:text-white transition-colors"></i>
+          </div>
+          <div class="text-xs font-bold text-slate-800 uppercase tracking-wider">Artikel Blog</div>
+          <div class="text-[10px] text-slate-400">Edukasi &amp; Tips Outbound</div>
+        </a>
+
+        <a
+          href="/admin/profil"
+          class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-emerald-400 hover:shadow-md transition-all text-center space-y-2 group shadow-xs"
+        >
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#0A3832] mx-auto flex items-center justify-center font-bold group-hover:bg-[#0A3832] group-hover:text-white transition-colors">
+            <i class="fas fa-user-shield text-sm group-hover:text-white transition-colors"></i>
+          </div>
+          <div class="text-xs font-bold text-slate-800 uppercase tracking-wider">Profil Admin</div>
+          <div class="text-[10px] text-slate-400">Nama, Foto &amp; Sandi</div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Leads Masuk Terkini Preview -->
+    <div class="rounded-2xl bg-white border border-slate-200/80 p-6 space-y-4 shadow-sm">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h2 class="font-heading font-black text-lg uppercase tracking-wider text-slate-900 flex items-center gap-2">
+            <i class="fas fa-inbox text-[#0A3832]"></i>
+            <span>Leads Konsultasi Masuk Terbaru</span>
+          </h2>
+          <p class="text-xs text-slate-500">Permintaan penawaran terbaru dari formulir website</p>
+        </div>
+        <a href="/admin/leads" class="text-xs font-bold text-[#0A3832] hover:underline">
+          Lihat Semua Leads →
+        </a>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left">
+          <thead class="text-[10px] uppercase font-bold text-slate-400 bg-slate-50 border-b border-slate-100">
+            <tr>
+              <th class="py-3 px-3">Nama Pengirim</th>
+              <th class="py-3 px-3">WhatsApp</th>
+              <th class="py-3 px-3">Program Layanan</th>
+              <th class="py-3 px-3">Peserta</th>
+              <th class="py-3 px-3">Status</th>
+              <th class="py-3 px-3 text-right">Tindakan</th>
+            </tr>
+          </thead>
+          <tbody id="dashboard-leads-tbody" class="divide-y divide-slate-100 text-slate-700">
+            <!-- Populated via script -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    import { DEFAULT_LEADS } from '../../lib/adminStore';
+
+    // 1. Live Indonesian Clock (WIB) Script
+    function updateIndonesianClock() {
+      const now = new Date();
+
+      // Time formatter in 24-hour WIB format
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      
+      const clockEl = document.getElementById('live-clock-time');
+      if (clockEl) {
+        clockEl.textContent = `${hours}:${minutes}:${seconds} WIB`;
+      }
+
+      // Dynamic Indonesian Greeting based on current hour
+      const greetingEl = document.getElementById('live-greeting');
+      if (greetingEl) {
+        const hour = now.getHours();
+        let greeting = 'Selamat Pagi';
+        let icon = '☀️';
+        if (hour >= 11 && hour < 15) {
+          greeting = 'Selamat Siang';
+          icon = '🌤️';
+        } else if (hour >= 15 && hour < 18) {
+          greeting = 'Selamat Sore';
+          icon = '🌅';
+        } else if (hour >= 18 || hour < 4) {
+          greeting = 'Selamat Malam';
+          icon = '🌙';
+        }
+
+        const storedProfile = localStorage.getItem('vo_admin_profile');
+        let adminName = 'Super Admin';
+        if (storedProfile) {
+          try {
+            const parsed = JSON.parse(storedProfile);
+            if (parsed.name) adminName = parsed.name.split(' ')[0];
+          } catch(e) {}
+        }
+
+        greetingEl.innerHTML = `<span>${greeting}, ${adminName}! ${icon}</span>`;
+      }
+
+      // Indonesian Date Formatter
+      const dateEl = document.getElementById('live-clock-date');
+      if (dateEl) {
+        const options: Intl.DateTimeFormatOptions = {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        };
+        dateEl.textContent = now.toLocaleDateString('id-ID', options);
+      }
+    }
+
+    // Run clock immediately and every second
+    updateIndonesianClock();
+    setInterval(updateIndonesianClock, 1000);
+
+    // 2. Interactive Real-Time Mini Calendar Script
+    let currentCalDate = new Date();
+
+    const monthNamesId = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+
+    function renderInteractiveCalendar() {
+      const year = currentCalDate.getFullYear();
+      const month = currentCalDate.getMonth();
+
+      // Set Month Year Title
+      const monthYearEl = document.getElementById('cal-month-year');
+      if (monthYearEl) {
+        monthYearEl.textContent = `${monthNamesId[month]} ${year}`;
+      }
+
+      const gridEl = document.getElementById('cal-dates-grid');
+      if (!gridEl) return;
+      gridEl.innerHTML = '';
+
+      // First day of month (0 = Sun, 1 = Mon, ...)
+      const firstDay = new Date(year, month, 1).getDay();
+      // Total days in month
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      // Total days in previous month
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+      const today = new Date();
+      const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+
+      // Previous month filler days
+      for (let i = firstDay - 1; i >= 0; i--) {
+        const prevDateNum = daysInPrevMonth - i;
+        const btn = document.createElement('div');
+        btn.className = 'py-1.5 text-slate-300 rounded-lg text-center select-none text-[11px]';
+        btn.textContent = String(prevDateNum);
+        gridEl.appendChild(btn);
+      }
+
+      // Current month active days
+      for (let day = 1; day <= daysInMonth; day++) {
+        const isToday = isCurrentMonth && today.getDate() === day;
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.dataset.day = String(day);
+        
+        let cellClass = 'py-1.5 rounded-lg text-center transition-all text-xs font-medium cursor-pointer ';
+        if (isToday) {
+          cellClass += 'cal-day-today bg-[#0A3832] text-white font-bold shadow-sm ring-2 ring-emerald-300 ';
+        } else {
+          cellClass += 'cal-day-regular text-slate-700 hover:bg-slate-100 hover:text-slate-900 ';
+        }
+        cell.className = cellClass;
+        cell.textContent = String(day);
+
+        // Click handler to select day
+        cell.addEventListener('click', () => {
+          // Remove active ring from siblings
+          gridEl.querySelectorAll('button').forEach((b) => {
+            if (!b.classList.contains('cal-day-today')) {
+              b.classList.remove('ring-2', 'ring-emerald-400', 'font-bold');
+            }
+          });
+
+          if (!isToday) {
+            cell.classList.add('ring-2', 'ring-emerald-400', 'font-bold');
+          }
+
+          const selInfo = document.getElementById('cal-selected-info');
+          if (selInfo) {
+            selInfo.textContent = `Pilihan: ${day} ${monthNamesId[month]} ${year}`;
+          }
+        });
+
+        gridEl.appendChild(cell);
+      }
+
+      // Initial selected info
+      const selInfo = document.getElementById('cal-selected-info');
+      if (selInfo && isCurrentMonth) {
+        selInfo.textContent = `Hari ini: ${today.getDate()} ${monthNamesId[month]} ${year}`;
+      }
+    }
+
+    renderInteractiveCalendar();
+
+    // Calendar Navigation Listeners
+    document.getElementById('cal-prev-btn')?.addEventListener('click', () => {
+      currentCalDate.setMonth(currentCalDate.getMonth() - 1);
+      renderInteractiveCalendar();
+    });
+
+    document.getElementById('cal-next-btn')?.addEventListener('click', () => {
+      currentCalDate.setMonth(currentCalDate.getMonth() + 1);
+      renderInteractiveCalendar();
+    });
+
+    document.getElementById('cal-today-btn')?.addEventListener('click', () => {
+      currentCalDate = new Date();
+      renderInteractiveCalendar();
+    });
+
+    // 3. Populate Recent Leads Table
+    const tbody = document.getElementById('dashboard-leads-tbody');
+    if (tbody) {
+      const stored = localStorage.getItem('vo_leads');
+      const leads = stored ? JSON.parse(stored) : DEFAULT_LEADS;
+
+      if (leads.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400 font-medium">Belum ada leads masuk saat ini.</td></tr>`;
+      } else {
+        tbody.innerHTML = leads.slice(0, 5).map((l: any) => `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="py-3 px-3 font-semibold text-slate-900">${l.name}</td>
+            <td class="py-3 px-3 text-[#0A3832] font-mono font-semibold">${l.whatsapp}</td>
+            <td class="py-3 px-3 text-slate-700">${l.service_type}</td>
+            <td class="py-3 px-3 text-slate-600">${l.participant_count ? l.participant_count + ' org' : '-'}</td>
+            <td class="py-3 px-3">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                l.status === 'Baru'
+                  ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                  : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+              }">${l.status}</span>
+            </td>
+            <td class="py-3 px-3 text-right">
+              <a href="https://wa.me/${l.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Halo ${l.name}, kami dari Provider Outbound Batu Malang ingin menindaklanjuti konsultasi kegiatan Anda.`)}" target="_blank" class="px-3 py-1.5 rounded-lg bg-[#0A3832] hover:bg-[#0D4940] text-white font-bold text-[11px] inline-flex items-center gap-1.5 shadow-xs transition-transform hover:scale-105">
+                <i class="fab fa-whatsapp text-emerald-300"></i>
+                <span>Chat WA</span>
+              </a>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+  </script>
+</AdminLayout>

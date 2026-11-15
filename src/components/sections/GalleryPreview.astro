@@ -1,0 +1,193 @@
+---
+import { GALLERY_ITEMS } from '../../data/defaultContent';
+
+// Take 6 items to form the 3x2 grid matching reference
+const previewItems = GALLERY_ITEMS.slice(0, 6);
+---
+
+<!-- "GALLERY & LIGHTBOX" SECTION (MATCHING REFERENCE DESIGN) -->
+<section class="section-crimson" id="galeri-preview">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <div class="section-title-wrap">
+      <span style="color: var(--secondary); font-weight: 800; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase;">
+        Dokumentasi Nyata
+      </span>
+      <h2 class="section-main-heading" id="galeri-preview-heading" style="margin-top: 6px;">GALERI KEGIATAN KAMI</h2>
+      <p class="section-sub-heading" id="galeri-preview-subheading">Klik pada foto kegiatan untuk melihat tampilan resolusi penuh</p>
+    </div>
+
+    <!-- 3-Column Square Grid -->
+    <div class="gallery-grid" id="homepage-gallery-grid">
+      {previewItems.map((item, index) => (
+        <div
+          aria-label={`Buka foto ${item.title}`}
+          class="gallery-item"
+          data-caption={`${item.title} — ${item.caption}`}
+          role="button"
+          tabindex="0"
+        >
+          <img
+            id={`homepage-gal-img-${index}`}
+            alt={item.altText}
+            loading="lazy"
+            src={item.imageUrl}
+            width="600"
+            height="600"
+          />
+          <div class="gallery-item-overlay">
+            <span class="gallery-item-caption">
+              <i class="fas fa-search-plus me-1"></i> {item.title}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div style="text-align: center; margin-top: 36px;">
+      <a class="btn-hero-secondary" href="/galeri" style="margin: 0;">
+        <span>Lihat Semua Foto Galeri</span>
+        <i class="fas fa-arrow-right ms-2"></i>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- LIGHTBOX MODAL (MATCHING REFERENCE DESIGN) -->
+<div aria-hidden="true" aria-modal="true" class="lightbox-modal" id="galleryLightbox" role="dialog">
+  <div class="lightbox-content-box">
+    <button aria-label="Tutup preview gambar" class="lightbox-close-btn" id="lightboxClose" type="button">
+      &times;
+    </button>
+    <img alt="" class="lightbox-img" id="lightboxImg" src="" />
+    <p class="lightbox-caption" id="lightboxCaption"></p>
+  </div>
+</div>
+
+<script is:inline>
+  (function() {
+    var lightbox = document.getElementById('galleryLightbox');
+    var lightboxImg = document.getElementById('lightboxImg');
+    var lightboxCaption = document.getElementById('lightboxCaption');
+    var lightboxClose = document.getElementById('lightboxClose');
+
+    function bindPreviewClicks() {
+      var galleryItems = document.querySelectorAll('#homepage-gallery-grid .gallery-item');
+      galleryItems.forEach(function(card) {
+        card.onclick = function() {
+          var img = this.querySelector('img');
+          var caption = this.getAttribute('data-caption') ||
+            (this.querySelector('.gallery-item-caption') ? this.querySelector('.gallery-item-caption').textContent.trim() : '') ||
+            (img ? img.alt : '');
+
+          if (img && lightbox && lightboxImg) {
+            lightboxImg.src = img.src;
+            lightboxImg.alt = img.alt || caption || '';
+            if (lightboxCaption) {
+              lightboxCaption.textContent = caption || '';
+            }
+            lightbox.classList.add('active');
+            lightbox.setAttribute('aria-hidden', 'false');
+          }
+        };
+
+        card.onkeydown = function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.click();
+          }
+        };
+      });
+    }
+
+    function hydrateGalleryPreview() {
+      var raw = localStorage.getItem('vo_gallery');
+      if (!raw) {
+        bindPreviewClicks();
+        return;
+      }
+      try {
+        var list = JSON.parse(raw);
+        if (!Array.isArray(list) || list.length === 0) {
+          bindPreviewClicks();
+          return;
+        }
+
+        var needsResave = false;
+        list.forEach(function(item) {
+          if (!item.imageUrl && (item.publicUrl || item.public_url)) {
+            item.imageUrl = item.publicUrl || item.public_url;
+            needsResave = true;
+          }
+        });
+        if (needsResave) {
+          try {
+            localStorage.setItem('vo_gallery', JSON.stringify(list));
+          } catch(err) {}
+        }
+
+        var grid = document.getElementById('homepage-gallery-grid');
+        if (!grid) return;
+
+        var preview = list.slice(0, 6);
+        grid.innerHTML = preview.map(function(item) {
+          var imgUrl = item.imageUrl || item.publicUrl || item.public_url || '';
+          return (
+            '<div aria-label="Buka foto ' + (item.title || '') + '" class="gallery-item" data-caption="' + (item.title || '') + ' — ' + (item.caption || '') + '" role="button" tabindex="0">' +
+              '<img alt="' + (item.altText || item.title || 'Foto Galeri') + '" loading="lazy" src="' + imgUrl + '" width="600" height="600" />' +
+              '<div class="gallery-item-overlay">' +
+                '<span class="gallery-item-caption">' +
+                  '<i class="fas fa-search-plus me-1"></i> ' + (item.title || '') +
+                '</span>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
+
+        bindPreviewClicks();
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    hydrateGalleryPreview();
+    document.addEventListener('DOMContentLoaded', hydrateGalleryPreview);
+
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'vo_gallery') hydrateGalleryPreview();
+    });
+    window.addEventListener('vo_content_updated', function(e) {
+      if (!e.detail || e.detail.key === 'vo_gallery') hydrateGalleryPreview();
+    });
+
+    try {
+      var bc = new BroadcastChannel('vo_sync_channel');
+      bc.onmessage = function(e) {
+        if (!e.data || e.data.key === 'vo_gallery') hydrateGalleryPreview();
+      };
+    } catch(err) {}
+
+    var closeLightbox = function() {
+      if (lightbox) {
+        lightbox.classList.remove('active');
+        lightbox.setAttribute('aria-hidden', 'true');
+      }
+    };
+
+    if (lightboxClose) {
+      lightboxClose.onclick = closeLightbox;
+    }
+    if (lightbox) {
+      lightbox.onclick = function(e) {
+        if (e.target === lightbox) closeLightbox();
+      };
+    }
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && lightbox && lightbox.classList.contains('active')) {
+        closeLightbox();
+      }
+    });
+  })();
+</script>
+

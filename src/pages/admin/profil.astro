@@ -1,0 +1,544 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { SITE_INFO } from '../../data/defaultContent';
+---
+
+<AdminLayout title="Pengaturan Profil Admin">
+  <div class="space-y-8 text-left max-w-4xl">
+    
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+      <div>
+        <h1 class="font-heading font-black text-2xl uppercase tracking-wider text-slate-900 flex items-center gap-2.5">
+          <i class="fas fa-user-shield text-[#0A3832]"></i>
+          <span>PROFIL ADMINISTRATOR</span>
+        </h1>
+        <p class="text-xs text-slate-500 mt-1">
+          Kelola informasi nama, email, foto profil avatar resmi, dan keamanan kata sandi akun admin Anda.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold shadow-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Akun Aktif &amp; Terverifikasi</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Global Alert Box -->
+    <div id="profile-alert" class="hidden p-4 rounded-xl text-xs font-bold transition-all"></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Left Column: Avatar Preview & Quick Details -->
+      <div class="lg:col-span-1 space-y-6">
+        <div class="rounded-2xl bg-[#0B2B26] border border-[#235347] p-6 flex flex-col items-center text-center space-y-4 shadow-xl">
+          
+          <!-- Large Circular Avatar with Pine & Sage Ring -->
+          <div class="relative group">
+            <div class="w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-[#235347] via-[#8EB69B] to-[#DAF1DE] shadow-glow-sage">
+              <img
+                id="avatar-preview-img"
+                src="/images/author-artikel/author-artikel-arby-ardiansyah.webp"
+                alt="Foto Profil Admin"
+                class="w-full h-full object-cover rounded-full bg-[#051F20]"
+              />
+            </div>
+            <label
+              for="avatar-file-input"
+              class="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-[#DAF1DE] hover:bg-white text-[#051F20] flex items-center justify-center cursor-pointer shadow-glow-mint border-2 border-[#0B2B26] transition-transform hover:scale-110"
+              title="Ganti Foto Profil"
+            >
+              <i class="fas fa-camera text-xs"></i>
+            </label>
+          </div>
+
+          <div>
+            <h3 id="display-profile-name" class="font-heading font-black text-lg text-white uppercase tracking-wider">
+              Arby Ardiansyah
+            </h3>
+            <p id="display-profile-role" class="text-xs text-[#8EB69B] font-semibold tracking-wide mt-0.5">
+              Lead Outbound Consultant &amp; Webmaster
+            </p>
+            <p id="display-profile-email" class="text-[11px] text-[#8EB69B]/80 mt-1">
+              admin@provideroutbound.web.id
+            </p>
+          </div>
+
+          <!-- Quick Preset Avatars -->
+          <div class="w-full pt-4 border-t border-[#235347] space-y-2 text-left">
+            <span class="text-[10px] uppercase font-bold text-[#8EB69B] tracking-wider block">
+              Pilihan Cepat Foto:
+            </span>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                id="btn-use-arby"
+                class="px-2.5 py-1.5 rounded-lg bg-[#051F20] hover:bg-[#163832] border border-[#235347] text-[11px] text-[#8EB69B] hover:text-[#DAF1DE] font-medium flex items-center gap-1.5 transition-colors"
+              >
+                <img src="/images/author-artikel/author-artikel-arby-ardiansyah.webp" class="w-4 h-4 rounded-full object-cover" />
+                <span>Foto Arby</span>
+              </button>
+              <button
+                type="button"
+                id="btn-use-logo"
+                class="px-2.5 py-1.5 rounded-lg bg-[#051F20] hover:bg-[#163832] border border-[#235347] text-[11px] text-[#8EB69B] hover:text-[#DAF1DE] font-medium flex items-center gap-1.5 transition-colors"
+              >
+                <img src="/images/logo/logo-provider-outbound.webp" class="w-4 h-4 rounded-full object-cover" />
+                <span>Logo PO</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Account Meta -->
+          <div class="w-full pt-3 text-[11px] text-[#8EB69B]/80 text-left space-y-1.5 border-t border-[#235347]">
+            <div class="flex justify-between">
+              <span>Status Akun:</span>
+              <span class="text-[#DAF1DE] font-bold">Super Administrator</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Sesi Login:</span>
+              <span class="text-white">Aktif (Local &amp; Cloud)</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Terakhir Diperbarui:</span>
+              <span id="last-updated-text" class="text-[#DAF1DE]">Hari ini</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Right Column: Form Edit Profil & Form Ganti Password -->
+      <div class="lg:col-span-2 space-y-6">
+        
+        <!-- Form 1: Biodata & Foto Profil -->
+        <form id="profile-info-form" class="rounded-2xl bg-[#0B2B26] border border-[#235347] p-6 space-y-5 shadow-xl">
+          <div class="flex items-center justify-between border-b border-[#235347] pb-3">
+            <h2 class="font-heading font-bold text-base uppercase text-[#DAF1DE] tracking-wider flex items-center gap-2">
+              <i class="fas fa-id-card text-[#8EB69B]"></i>
+              <span>Data Identitas &amp; Foto Profil</span>
+            </h2>
+            <span class="text-[10px] text-[#8EB69B]/70 uppercase font-semibold">Bagian 1</span>
+          </div>
+
+          <!-- Hidden File Input for Avatar Upload -->
+          <input
+            type="file"
+            id="avatar-file-input"
+            accept="image/webp,image/png,image/jpeg"
+            class="hidden"
+          />
+
+          <!-- URL Avatar Input (Optional alternative) -->
+          <div>
+            <label for="profile-avatar-url" class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1.5">
+              URL Foto Avatar (atau gunakan tombol kamera di foto untuk upload file)
+            </label>
+            <div class="flex gap-2">
+              <input
+                type="text"
+                id="profile-avatar-url"
+                placeholder="/images/author-artikel/author-artikel-arby-ardiansyah.webp"
+                value="/images/author-artikel/author-artikel-arby-ardiansyah.webp"
+                class="flex-1 px-3.5 py-2.5 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs font-mono focus:outline-none focus:border-[#8EB69B]"
+              />
+              <button
+                type="button"
+                id="btn-apply-avatar-url"
+                class="px-3.5 py-2.5 rounded-lg bg-[#163832] hover:bg-[#235347] text-[#DAF1DE] text-xs font-bold border border-[#235347] transition-colors"
+              >
+                Terapkan
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="profile-name" class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1.5">
+                Nama Lengkap Administrator <span class="text-[#DAF1DE]">*</span>
+              </label>
+              <input
+                type="text"
+                id="profile-name"
+                required
+                value="Arby Ardiansyah"
+                class="w-full px-3.5 py-2.5 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]"
+              />
+            </div>
+
+            <div>
+              <label for="profile-email" class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1.5">
+                Email Administrator <span class="text-[#DAF1DE]">*</span>
+              </label>
+              <input
+                type="email"
+                id="profile-email"
+                required
+                value="admin@provideroutbound.web.id"
+                class="w-full px-3.5 py-2.5 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="profile-role" class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1.5">
+                Jabatan / Peran
+              </label>
+              <input
+                type="text"
+                id="profile-role"
+                value="Lead Outbound Consultant & Webmaster"
+                class="w-full px-3.5 py-2.5 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]"
+              />
+            </div>
+
+            <div>
+              <label for="profile-phone" class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1.5">
+                Nomor WhatsApp Admin
+              </label>
+              <input
+                type="text"
+                id="profile-phone"
+                value={SITE_INFO.whatsappDisplay}
+                class="w-full px-3.5 py-2.5 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs font-mono focus:outline-none focus:border-[#8EB69B]"
+              />
+            </div>
+          </div>
+
+          <!-- Floating Save Button: Pojok Kanan Bawah -->
+          <div class="fixed bottom-6 right-6 z-40">
+            <button
+              type="submit"
+              id="btn-save-profile"
+              class="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[#0A3832] hover:bg-[#0D4940] text-white font-bold text-xs uppercase tracking-wider shadow-2xl transition-all hover:scale-105 cursor-pointer border border-white/20 active:scale-95"
+            >
+              <i class="fas fa-save text-white text-sm"></i>
+              <span class="text-white">Simpan Perubahan</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Form 2: Ubah Sandi (Password Change) -->
+        <form id="password-form" class="rounded-2xl bg-[#0B2B26] border border-[#235347] p-6 space-y-5 shadow-xl">
+          <div class="flex items-center justify-between border-b border-[#235347] pb-3">
+            <h2 class="font-heading font-bold text-base uppercase text-[#DAF1DE] tracking-wider flex items-center gap-2">
+              <i class="fas fa-key text-[#8EB69B]"></i>
+              <span>Keamanan &amp; Ubah Kata Sandi</span>
+            </h2>
+            <span class="text-[10px] text-[#8EB69B]/70 uppercase font-semibold">Bagian 2</span>
+          </div>
+
+          <div>
+            <label for="current-password" class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1.5">
+              Kata Sandi Saat Ini <span class="text-[#DAF1DE]">*</span>
+            </label>
+            <div class="relative">
+              <input
+                type="password"
+                id="current-password"
+                required
+                placeholder="Masukkan kata sandi saat ini (default: admin123)"
+                class="w-full px-3.5 py-2.5 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B] pr-10"
+              />
+              <button
+                type="button"
+                class="toggle-pwd-btn absolute right-3 top-2.5 text-[#8EB69B] hover:text-[#DAF1DE] text-xs transition-colors"
+                data-target="current-password"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="new-password" class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1.5">
+                Kata Sandi Baru <span class="text-[#DAF1DE]">*</span>
+              </label>
+              <div class="relative">
+                <input
+                  type="password"
+                  id="new-password"
+                  required
+                  minlength="6"
+                  placeholder="Minimal 6 karakter"
+                  class="w-full px-3.5 py-2.5 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B] pr-10"
+                />
+                <button
+                  type="button"
+                  class="toggle-pwd-btn absolute right-3 top-2.5 text-[#8EB69B] hover:text-[#DAF1DE] text-xs transition-colors"
+                  data-target="new-password"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label for="confirm-password" class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1.5">
+                Konfirmasi Kata Sandi Baru <span class="text-[#DAF1DE]">*</span>
+              </label>
+              <div class="relative">
+                <input
+                  type="password"
+                  id="confirm-password"
+                  required
+                  minlength="6"
+                  placeholder="Ulangi kata sandi baru"
+                  class="w-full px-3.5 py-2.5 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B] pr-10"
+                />
+                <button
+                  type="button"
+                  class="toggle-pwd-btn absolute right-3 top-2.5 text-[#8EB69B] hover:text-[#DAF1DE] text-xs transition-colors"
+                  data-target="confirm-password"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Password Hint Note -->
+          <div class="p-3 rounded-lg bg-[#163832] border border-[#235347] text-[11px] text-[#8EB69B] space-y-1">
+            <div class="font-bold text-[#DAF1DE] flex items-center gap-1.5">
+              <i class="fas fa-shield-alt text-[#8EB69B]"></i> Tips Keamanan Sandi:
+            </div>
+            <p>Gunakan kombinasi minimal 6-8 karakter dengan huruf besar, huruf kecil, dan angka untuk menjaga keamanan akses portal admin.</p>
+          </div>
+
+          <div class="flex justify-end pt-2">
+            <button
+              type="submit"
+              class="px-6 py-2.5 rounded-xl bg-[#0A3832] hover:bg-[#0D4940] text-white font-heading font-black text-xs uppercase tracking-wider shadow-md transition-all hover:scale-105 flex items-center gap-2 cursor-pointer"
+            >
+              <i class="fas fa-lock text-white"></i>
+              <span class="text-white">Perbarui Kata Sandi</span>
+            </button>
+          </div>
+        </form>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    import { syncSiteSettingsToSupabase } from '../../lib/supabaseSync';
+
+    const alertBox = document.getElementById('profile-alert') as HTMLDivElement | null;
+    const infoForm = document.getElementById('profile-info-form') as HTMLFormElement | null;
+    const pwdForm = document.getElementById('password-form') as HTMLFormElement | null;
+    const fileInput = document.getElementById('avatar-file-input') as HTMLInputElement | null;
+    const avatarImg = document.getElementById('avatar-preview-img') as HTMLImageElement | null;
+    const avatarUrlInput = document.getElementById('profile-avatar-url') as HTMLInputElement | null;
+
+    const nameInput = document.getElementById('profile-name') as HTMLInputElement | null;
+    const emailInput = document.getElementById('profile-email') as HTMLInputElement | null;
+    const roleInput = document.getElementById('profile-role') as HTMLInputElement | null;
+    const phoneInput = document.getElementById('profile-phone') as HTMLInputElement | null;
+
+    const displayName = document.getElementById('display-profile-name');
+    const displayRole = document.getElementById('display-profile-role');
+    const displayEmail = document.getElementById('display-profile-email');
+    const lastUpdated = document.getElementById('last-updated-text');
+
+    // Default Profile
+    const DEFAULT_PROFILE = {
+      name: 'Arby Ardiansyah',
+      email: 'admin@provideroutbound.web.id',
+      role: 'Lead Outbound Consultant & Webmaster',
+      phone: '+62 822-1122-1909',
+      avatar: '/images/author-artikel/author-artikel-arby-ardiansyah.webp',
+      lastUpdated: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+    };
+
+    function showAlert(msg: string, isError = false) {
+      if (!alertBox) return;
+      alertBox.className = `p-4 rounded-xl text-xs font-bold border block shadow-lg ${
+        isError
+          ? 'bg-red-950/90 text-red-200 border-red-500/60'
+          : 'bg-emerald-950/90 text-emerald-200 border-emerald-500/60'
+      }`;
+      alertBox.innerHTML = `
+        <div class="flex items-center gap-2.5">
+          <i class="fas ${isError ? 'fa-exclamation-triangle text-red-400' : 'fa-check-circle text-emerald-400'} text-base"></i>
+          <span>${msg}</span>
+        </div>
+      `;
+      alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      setTimeout(() => {
+        alertBox.classList.add('hidden');
+      }, 4000);
+    }
+
+    // Load initial profile data
+    function loadProfile() {
+      const stored = localStorage.getItem('vo_admin_profile');
+      const data = stored ? { ...DEFAULT_PROFILE, ...JSON.parse(stored) } : DEFAULT_PROFILE;
+
+      if (nameInput) nameInput.value = data.name;
+      if (emailInput) emailInput.value = data.email;
+      if (roleInput) roleInput.value = data.role;
+      if (phoneInput) phoneInput.value = data.phone;
+      if (avatarUrlInput) avatarUrlInput.value = data.avatar;
+      if (avatarImg) avatarImg.src = data.avatar;
+
+      if (displayName) displayName.textContent = data.name;
+      if (displayRole) displayRole.textContent = data.role;
+      if (displayEmail) displayEmail.textContent = data.email;
+      if (lastUpdated) lastUpdated.textContent = data.lastUpdated || 'Hari ini';
+
+      // Also sync to topbar immediately if present
+      syncTopbar(data.name, data.avatar);
+    }
+
+    function syncTopbar(name: string, avatar: string) {
+      const topbarName = document.getElementById('topbar-admin-name');
+      const topbarAvatar = document.getElementById('topbar-admin-avatar') as HTMLImageElement | null;
+      if (topbarName) topbarName.textContent = name;
+      if (topbarAvatar) topbarAvatar.src = avatar;
+    }
+
+    loadProfile();
+
+    // Handle Quick Preset Buttons
+    document.getElementById('btn-use-arby')?.addEventListener('click', () => {
+      const url = '/images/author-artikel/author-artikel-arby-ardiansyah.webp';
+      if (avatarUrlInput) avatarUrlInput.value = url;
+      if (avatarImg) avatarImg.src = url;
+    });
+
+    document.getElementById('btn-use-logo')?.addEventListener('click', () => {
+      const url = '/images/logo/logo-provider-outbound.webp';
+      if (avatarUrlInput) avatarUrlInput.value = url;
+      if (avatarImg) avatarImg.src = url;
+    });
+
+    document.getElementById('btn-apply-avatar-url')?.addEventListener('click', () => {
+      if (avatarUrlInput && avatarImg) {
+        avatarImg.src = avatarUrlInput.value.trim();
+        showAlert('✓ Pratinjau foto profil URL berhasil dimuat!');
+      }
+    });
+
+    // Handle Local File Upload Preview
+    fileInput?.addEventListener('change', (e) => {
+      const file = fileInput.files?.[0];
+      if (file) {
+        if (file.size > 2 * 1024 * 1024) {
+          showAlert('Ukuran file terlalu besar. Harap pilih gambar di bawah 2 MB.', true);
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const result = event.target?.result as string;
+          if (avatarImg) avatarImg.src = result;
+          if (avatarUrlInput) avatarUrlInput.value = result;
+          showAlert('✓ Foto berhasil diunggah! Klik "Simpan Perubahan Profil" untuk menyimpan permanen.');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Handle Profile Form Submit
+    infoForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const confirmed = await (window as any).showAdminConfirm?.({
+        title: 'Konfirmasi Simpan Profil',
+        message: 'Apakah Anda yakin untuk melakukan perubahan pada informasi profil administrator ini?',
+        type: 'save',
+        confirmText: 'Ya, Simpan Profil'
+      });
+      if (confirmed === false) return;
+
+      const updatedProfile = {
+        name: nameInput?.value.trim() || DEFAULT_PROFILE.name,
+        email: emailInput?.value.trim() || DEFAULT_PROFILE.email,
+        role: roleInput?.value.trim() || DEFAULT_PROFILE.role,
+        phone: phoneInput?.value.trim() || DEFAULT_PROFILE.phone,
+        avatar: avatarUrlInput?.value.trim() || avatarImg?.src || DEFAULT_PROFILE.avatar,
+        lastUpdated: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+      };
+
+      localStorage.setItem('vo_admin_profile', JSON.stringify(updatedProfile));
+      loadProfile();
+
+      // Sync ke Cloud Supabase
+      syncSiteSettingsToSupabase('admin_profile', updatedProfile);
+
+      showAlert('✓ Informasi profil dan foto admin tersimpan ke Cloud Supabase & Web!');
+      (window as any).showAdminNotification?.(
+        'Profil Berhasil Diperbarui!',
+        'Informasi profil dan foto avatar administrator berhasil disimpan ke Supabase & Web.'
+      );
+    });
+
+    // Handle Password Change Form Submit
+    pwdForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const currentPwd = (document.getElementById('current-password') as HTMLInputElement).value;
+      const newPwd = (document.getElementById('new-password') as HTMLInputElement).value;
+      const confirmPwd = (document.getElementById('confirm-password') as HTMLInputElement).value;
+
+      const storedPwd = localStorage.getItem('vo_admin_password') || 'admin123';
+
+      if (currentPwd !== storedPwd) {
+        showAlert('Kata sandi saat ini tidak cocok! Silakan periksa kembali.', true);
+        return;
+      }
+
+      if (newPwd.length < 6) {
+        showAlert('Kata sandi baru minimal harus 6 karakter.', true);
+        return;
+      }
+
+      if (newPwd !== confirmPwd) {
+        showAlert('Konfirmasi kata sandi baru tidak sesuai dengan kata sandi baru.', true);
+        return;
+      }
+
+      const confirmed = await (window as any).showAdminConfirm?.({
+        title: 'Konfirmasi Ubah Sandi',
+        message: 'Apakah Anda yakin ingin memperbarui kata sandi akun administrator ini? Pastikan Anda mengingat kata sandi baru.',
+        type: 'save',
+        confirmText: 'Ya, Perbarui Sandi'
+      });
+      if (confirmed === false) return;
+
+      // Save new password
+      localStorage.setItem('vo_admin_password', newPwd);
+
+      // Sync ke Cloud Supabase
+      syncSiteSettingsToSupabase('admin_credentials', { password: newPwd, updatedAt: new Date().toISOString() });
+
+      pwdForm.reset();
+      showAlert('✓ Kata sandi administrator berhasil diperbarui dan tersimpan ke Cloud Supabase! Gunakan sandi baru saat login.');
+      (window as any).showAdminNotification?.(
+        'Kata Sandi Berhasil Diubah!',
+        'Kata sandi akun admin telah berhasil diperbarui dan disinkronkan ke Supabase.'
+      );
+    });
+
+    // Toggle Password Visibility Eye
+    document.querySelectorAll('.toggle-pwd-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-target');
+        if (!targetId) return;
+        const input = document.getElementById(targetId) as HTMLInputElement;
+        if (input) {
+          const isPassword = input.type === 'password';
+          input.type = isPassword ? 'text' : 'password';
+          const icon = btn.querySelector('i');
+          if (icon) {
+            icon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+          }
+        }
+      });
+    });
+  </script>
+</AdminLayout>

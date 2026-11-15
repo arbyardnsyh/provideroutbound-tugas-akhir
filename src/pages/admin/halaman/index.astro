@@ -1,0 +1,787 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Kelola Semua Halaman">
+  <div class="space-y-6 text-left">
+    
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+      <div>
+        <h1 class="font-heading font-black text-2xl uppercase tracking-wider text-slate-900 flex items-center gap-2.5">
+          <i class="fas fa-layer-group text-[#0A3832]"></i>
+          <span>MASTER KELOLA SEMUA HALAMAN</span>
+        </h1>
+        <p class="text-xs text-slate-500 mt-1">
+          Daftar lengkap seluruh halaman website. Anda dapat mengedit konten setiap halaman spesifik atau membuat halaman kustom baru (PRD Section 11.5 & 12.2).
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          id="btn-add-custom-page"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0A3832] hover:bg-[#0D4940] text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-all hover:scale-105 cursor-pointer"
+        >
+          <i class="fas fa-plus text-white"></i>
+          <span class="text-white">+ Buat Halaman Baru</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="pages-alert" class="hidden p-3 rounded-lg text-xs font-bold transition-all"></div>
+
+    <!-- Filter & Search Bar -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+      <div class="relative w-full sm:w-72">
+        <input
+          type="text"
+          id="search-page-input"
+          placeholder="Cari halaman atau URL slug..."
+          class="w-full px-3.5 py-2 pl-9 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:bg-white"
+        />
+        <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+      </div>
+
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <span class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Status:</span>
+        <select
+          id="filter-status-select"
+          class="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs focus:outline-none focus:border-emerald-600 focus:bg-white"
+        >
+          <option value="all">Semua Status</option>
+          <option value="published">Published</option>
+          <option value="draft">Draft</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table of Pages -->
+    <div class="rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-xs">
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left">
+          <thead class="bg-slate-50 text-[11px] uppercase font-bold text-slate-600 border-b border-slate-200">
+            <tr>
+              <th class="py-3 px-4">Nama Halaman</th>
+              <th class="py-3 px-4">URL Slug</th>
+              <th class="py-3 px-4">Tipe / Kategori</th>
+              <th class="py-3 px-4">Status</th>
+              <th class="py-3 px-4">Terakhir Diperbarui</th>
+              <th class="py-3 px-4 text-right">Tindakan</th>
+            </tr>
+          </thead>
+          <tbody id="pages-tbody" class="divide-y divide-slate-100 text-slate-800">
+            <!-- Populated via script -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Quick Shortcuts Card Grid -->
+    <div class="space-y-3 pt-4">
+      <h3 class="font-heading font-bold text-xs uppercase tracking-wider text-slate-800 flex items-center gap-2">
+        <i class="fas fa-th-large text-[#0A3832]"></i>
+        <span>Akses Cepat Editor Halaman Utama:</span>
+      </h3>
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <a href="/admin/halaman/beranda" class="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 text-center hover:bg-slate-50 transition-all group shadow-xs">
+          <i class="fas fa-home text-[#0A3832] text-lg mb-1.5 block group-hover:scale-110 transition-transform"></i>
+          <span class="text-xs font-bold text-slate-900 block">Beranda</span>
+          <span class="text-[10px] text-slate-500">Hero, Service &amp; Paket</span>
+        </a>
+        <a href="/admin/layanan" class="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 text-center hover:bg-slate-50 transition-all group shadow-xs">
+          <i class="fas fa-briefcase text-[#0A3832] text-lg mb-1.5 block group-hover:scale-110 transition-transform"></i>
+          <span class="text-xs font-bold text-slate-900 block">Layanan</span>
+          <span class="text-[10px] text-slate-500">4 Layanan Outbound</span>
+        </a>
+        <a href="/admin/paket" class="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 text-center hover:bg-slate-50 transition-all group shadow-xs">
+          <i class="fas fa-box-open text-[#0A3832] text-lg mb-1.5 block group-hover:scale-110 transition-transform"></i>
+          <span class="text-xs font-bold text-slate-900 block">Paket Pilihan</span>
+          <span class="text-[10px] text-slate-500">16 Paket Outbound</span>
+        </a>
+        <a href="/admin/galeri" class="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 text-center hover:bg-slate-50 transition-all group shadow-xs">
+          <i class="fas fa-camera-retro text-[#0A3832] text-lg mb-1.5 block group-hover:scale-110 transition-transform"></i>
+          <span class="text-xs font-bold text-slate-900 block">Galeri Foto</span>
+          <span class="text-[10px] text-slate-500">Dokumentasi Media</span>
+        </a>
+        <a href="/admin/halaman/tentang-kami" class="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 text-center hover:bg-slate-50 transition-all group shadow-xs">
+          <i class="fas fa-users text-[#0A3832] text-lg mb-1.5 block group-hover:scale-110 transition-transform"></i>
+          <span class="text-xs font-bold text-slate-900 block">Tentang Kami</span>
+          <span class="text-[10px] text-slate-500">Profil &amp; Dedikasi</span>
+        </a>
+        <a href="/admin/halaman/kontak" class="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 text-center hover:bg-slate-50 transition-all group shadow-xs">
+          <i class="fas fa-phone-alt text-[#0A3832] text-lg mb-1.5 block group-hover:scale-110 transition-transform"></i>
+          <span class="text-xs font-bold text-slate-900 block">Kontak</span>
+          <span class="text-[10px] text-slate-500">WhatsApp &amp; Lokasi</span>
+        </a>
+        <a href="/admin/blog" class="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 text-center hover:bg-slate-50 transition-all group shadow-xs">
+          <i class="fas fa-feather-alt text-[#0A3832] text-lg mb-1.5 block group-hover:scale-110 transition-transform"></i>
+          <span class="text-xs font-bold text-slate-900 block">Blog &amp; Tips</span>
+          <span class="text-[10px] text-slate-500">Artikel Edukasi</span>
+        </a>
+        <a href="/admin/testimoni" class="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 text-center hover:bg-slate-50 transition-all group shadow-xs">
+          <i class="fas fa-comment-dots text-[#0A3832] text-lg mb-1.5 block group-hover:scale-110 transition-transform"></i>
+          <span class="text-xs font-bold text-slate-900 block">Testimoni</span>
+          <span class="text-[10px] text-slate-500">Ulasan Nyata Klien</span>
+        </a>
+        <a href="/admin/faq" class="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 text-center hover:bg-slate-50 transition-all group shadow-xs">
+          <i class="fas fa-question-circle text-[#0A3832] text-lg mb-1.5 block group-hover:scale-110 transition-transform"></i>
+          <span class="text-xs font-bold text-slate-900 block">FAQ</span>
+          <span class="text-[10px] text-slate-500">Tanya Jawab Layanan</span>
+        </a>
+        <a href="/admin/halaman/legal" class="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 text-center hover:bg-slate-50 transition-all group shadow-xs">
+          <i class="fas fa-balance-scale text-[#0A3832] text-lg mb-1.5 block group-hover:scale-110 transition-transform"></i>
+          <span class="text-xs font-bold text-slate-900 block">Legalitas</span>
+          <span class="text-[10px] text-slate-500">Privasi &amp; Syarat</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Modal Buat / Edit Halaman Kustom -->
+    <dialog id="page-modal" class="backdrop:bg-stone-950/80 bg-transparent p-4 max-w-2xl w-full mx-auto my-auto text-white focus:outline-none">
+      <div class="rounded-2xl bg-[#0B2B26] border border-[#235347] p-6 shadow-2xl space-y-4 text-left">
+        <div class="flex items-center justify-between border-b border-[#235347] pb-3">
+          <h3 id="page-modal-title" class="font-heading font-black text-lg text-white uppercase tracking-wider">
+            Buat Halaman Kustom Baru
+          </h3>
+          <button id="close-page-modal-btn" type="button" class="text-[#8EB69B] hover:text-[#DAF1DE] text-lg font-bold">✕</button>
+        </div>
+
+        <form id="custom-page-form" class="space-y-4">
+          <input type="hidden" id="p-id" />
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1">
+                Judul Halaman <span class="text-[#DAF1DE]">*</span>
+              </label>
+              <input
+                type="text"
+                id="p-title"
+                required
+                placeholder="Contoh: Paket Tour Bromo Midnight"
+                class="w-full px-3 py-2 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]"
+              />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1">
+                URL Slug <span class="text-[#DAF1DE]">*</span>
+              </label>
+              <input
+                type="text"
+                id="p-slug"
+                required
+                placeholder="contoh-paket-tour-bromo"
+                class="w-full px-3 py-2 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs font-mono focus:outline-none focus:border-[#8EB69B]"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1">
+                Kategori / Tipe Halaman
+              </label>
+              <select
+                id="p-type"
+                class="w-full px-3 py-2 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]"
+              >
+                <option value="Landing Page">Landing Page Promosi</option>
+                <option value="Paket Khusus">Paket Khusus / Event</option>
+                <option value="Informasi Umum">Informasi &amp; Edukasi</option>
+                <option value="Halaman Legal">Kebijakan &amp; Legal</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1">
+                Status Publikasi
+              </label>
+              <select
+                id="p-status"
+                class="w-full px-3 py-2 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]"
+              >
+                <option value="published">Published (Tayang)</option>
+                <option value="draft">Draft (Disimpan Sementara)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1">
+              Ringkasan Halaman (Excerpt)
+            </label>
+            <input
+              type="text"
+              id="p-excerpt"
+              placeholder="Deskripsi singkat untuk cuplikan dan kartu ringkasan"
+              class="w-full px-3 py-2 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]"
+            />
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1">
+              Isi Konten Halaman (HTML / Teks)
+            </label>
+            <textarea
+              id="p-content"
+              rows="5"
+              placeholder="Tuliskan struktur paragraf, daftar fasilitas, atau konten halaman di sini..."
+              class="w-full px-3 py-2 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B] font-mono"
+            ></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-[#235347]">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1">
+                Meta SEO Title
+              </label>
+              <input
+                type="text"
+                id="p-seo-title"
+                placeholder="Judul SEO untuk Google Search"
+                class="w-full px-3 py-2 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]"
+              />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-[#8EB69B] mb-1">
+                Meta SEO Description
+              </label>
+              <input
+                type="text"
+                id="p-seo-desc"
+                placeholder="Deskripsi ringkas 150-160 karakter"
+                class="w-full px-3 py-2 rounded-lg bg-[#051F20] border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]"
+              />
+            </div>
+          </div>
+
+          <!-- Custom Page Featured / OG Image Control -->
+          <div class="p-3 rounded-lg bg-[#051F20] border border-[#235347] space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-[#DAF1DE]">
+                Gambar Sampul / Social Share (OG Image)
+              </label>
+              <span class="text-[10px] text-[#8EB69B]">Upload / Preset</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-16 h-12 rounded-lg bg-[#0B2B26] border border-[#235347] overflow-hidden flex-shrink-0 flex items-center justify-center">
+                <img id="p-img-preview" src="/images/hero/hero-outbound.webp" alt="Preview" class="w-full h-full object-cover" />
+              </div>
+              <div class="flex-1 space-y-1.5">
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    id="p-image-url"
+                    class="flex-1 px-3 py-1.5 rounded-lg bg-[#0B2B26] border border-[#235347] text-white text-xs font-mono focus:outline-none focus:border-[#8EB69B]"
+                    value="/images/hero/hero-outbound.webp"
+                  />
+                  <label class="px-3 py-1.5 rounded-lg bg-[#163832] hover:bg-[#235347] text-[#DAF1DE] text-xs font-bold border border-[#235347] cursor-pointer flex items-center gap-1.5 transition-all">
+                    <i class="fas fa-upload text-[11px]"></i>
+                    <span>Upload</span>
+                    <input type="file" id="p-image-file" accept="image/*" class="hidden" />
+                  </label>
+                </div>
+                <div class="flex flex-wrap items-center gap-1.5 text-[10px]">
+                  <span class="text-[#8EB69B]">Preset:</span>
+                  <button type="button" class="btn-pimg-preset px-2 py-0.5 rounded bg-[#0B2B26] hover:bg-[#163832] text-[#DAF1DE] border border-[#235347]" data-val="/images/hero/hero-outbound.webp">Hero Outbound</button>
+                  <button type="button" class="btn-pimg-preset px-2 py-0.5 rounded bg-[#0B2B26] hover:bg-[#163832] text-[#DAF1DE] border border-[#235347]" data-val="/images/hero-bromo-sunrise.webp">Bromo</button>
+                  <button type="button" class="btn-pimg-preset px-2 py-0.5 rounded bg-[#0B2B26] hover:bg-[#163832] text-[#DAF1DE] border border-[#235347]" data-val="/images/about/team-fasilitator.webp">Tim</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-3 border-t border-[#235347]">
+            <button
+              type="button"
+              id="cancel-page-btn"
+              class="px-4 py-2 rounded-xl bg-[#051F20] hover:bg-[#163832] text-[#8EB69B] hover:text-white border border-[#235347] text-xs font-bold transition-colors"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              class="px-5 py-2 rounded-xl bg-[#0A3832] hover:bg-[#0D4940] text-white font-bold text-xs uppercase tracking-wider shadow-md transition-all hover:scale-105 cursor-pointer flex items-center gap-1.5"
+            >
+              <i class="fas fa-save text-white"></i>
+              <span class="text-white">Simpan Halaman</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+  </div>
+
+  <script>
+    import { syncPageToSupabase, deletePageFromSupabase, getSupabaseClient } from '../../../lib/supabaseSync';
+
+    // Initial master list of all website pages
+    const DEFAULT_SYSTEM_PAGES = [
+      {
+        id: 'sys-beranda',
+        title: 'Halaman Beranda (Landing Page)',
+        slug: '/',
+        type: 'Landing Page',
+        status: 'published',
+        editorUrl: '/admin/halaman/beranda',
+        isSystem: true,
+        updatedAt: 'Terbaru'
+      },
+      {
+        id: 'sys-layanan',
+        title: 'Halaman Layanan Outbound',
+        slug: '/layanan',
+        type: 'Katalog Layanan',
+        status: 'published',
+        editorUrl: '/admin/layanan',
+        isSystem: true,
+        updatedAt: 'Terbaru'
+      },
+      {
+        id: 'sys-paket',
+        title: 'Halaman Paket Pilihan Outbound',
+        slug: '/paket',
+        type: 'Katalog Paket',
+        status: 'published',
+        editorUrl: '/admin/paket',
+        isSystem: true,
+        updatedAt: 'Terbaru'
+      },
+      {
+        id: 'sys-galeri',
+        title: 'Halaman Galeri Dokumentasi Foto',
+        slug: '/galeri',
+        type: 'Media Dokumentasi',
+        status: 'published',
+        editorUrl: '/admin/galeri',
+        isSystem: true,
+        updatedAt: 'Terbaru'
+      },
+      {
+        id: 'sys-tentang',
+        title: 'Halaman Tentang Kami',
+        slug: '/tentang-kami',
+        type: 'Profil Perusahaan',
+        status: 'published',
+        editorUrl: '/admin/halaman/tentang-kami',
+        isSystem: true,
+        updatedAt: 'Terbaru'
+      },
+      {
+        id: 'sys-kontak',
+        title: 'Halaman Kontak & WhatsApp',
+        slug: '/kontak',
+        type: 'Informasi Kontak',
+        status: 'published',
+        editorUrl: '/admin/halaman/kontak',
+        isSystem: true,
+        updatedAt: 'Terbaru'
+      },
+      {
+        id: 'sys-blog',
+        title: 'Halaman Artikel Blog & Tips',
+        slug: '/blog',
+        type: 'Blog / Berita',
+        status: 'published',
+        editorUrl: '/admin/blog',
+        isSystem: true,
+        updatedAt: 'Terbaru'
+      },
+      {
+        id: 'sys-testimoni',
+        title: 'Halaman Testimoni & Review Klien',
+        slug: '/testimoni',
+        type: 'Social Proof',
+        status: 'published',
+        editorUrl: '/admin/testimoni',
+        isSystem: true,
+        updatedAt: 'Terbaru'
+      },
+      {
+        id: 'sys-faq',
+        title: 'Halaman FAQ Tanya Jawab',
+        slug: '/faq',
+        type: 'Tanya Jawab',
+        status: 'published',
+        editorUrl: '/admin/faq',
+        isSystem: true,
+        updatedAt: 'Terbaru'
+      },
+      {
+        id: 'sys-privasi',
+        title: 'Halaman Kebijakan Privasi',
+        slug: '/kebijakan-privasi',
+        type: 'Legal',
+        status: 'published',
+        editorUrl: '/admin/halaman/legal',
+        isSystem: true,
+        updatedAt: 'Terbaru'
+      },
+      {
+        id: 'sys-syarat',
+        title: 'Halaman Syarat & Ketentuan',
+        slug: '/syarat-ketentuan',
+        type: 'Legal',
+        status: 'published',
+        editorUrl: '/admin/halaman/legal',
+        isSystem: true,
+        updatedAt: 'Terbaru'
+      }
+    ];
+
+    const tbody = document.getElementById('pages-tbody');
+    const alertBox = document.getElementById('pages-alert');
+    const modal = document.getElementById('page-modal') as HTMLDialogElement | null;
+    const form = document.getElementById('custom-page-form') as HTMLFormElement | null;
+    const searchInput = document.getElementById('search-page-input') as HTMLInputElement | null;
+    const statusSelect = document.getElementById('filter-status-select') as HTMLSelectElement | null;
+
+    function getCustomPages(): any[] {
+      const stored = localStorage.getItem('vo_custom_pages');
+      return stored ? JSON.parse(stored) : [];
+    }
+
+    function saveCustomPages(list: any[]) {
+      localStorage.setItem('vo_custom_pages', JSON.stringify(list));
+      window.dispatchEvent(new CustomEvent('vo_content_updated', { detail: { key: 'vo_custom_pages', data: list } }));
+      window.dispatchEvent(new Event('storage'));
+      try {
+        const bc = new BroadcastChannel('vo_sync_channel');
+        bc.postMessage({ type: 'VO_UPDATED', key: 'vo_custom_pages', data: list });
+      } catch (e) {}
+      renderTable();
+    }
+
+    function getAllPages(): any[] {
+      const custom = getCustomPages();
+      return [...DEFAULT_SYSTEM_PAGES, ...custom];
+    }
+
+    function showAlert(msg: string, isError = false) {
+      if (!alertBox) return;
+      alertBox.className = `p-3 rounded-lg text-xs font-bold border block shadow-glow-mint ${
+        isError ? 'bg-red-950/90 text-red-200 border-red-500/60' : 'bg-[#163832] text-[#DAF1DE] border-[#235347]'
+      }`;
+      alertBox.textContent = msg;
+      setTimeout(() => alertBox.classList.add('hidden'), 3000);
+    }
+
+    function renderTable() {
+      if (!tbody) return;
+      const all = getAllPages();
+      const q = (searchInput?.value || '').toLowerCase().trim();
+      const statusFilter = statusSelect?.value || 'all';
+
+      const filtered = all.filter((p) => {
+        const matchQ = p.title.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q) || p.type.toLowerCase().includes(q);
+        const matchStatus = statusFilter === 'all' || p.status === statusFilter;
+        return matchQ && matchStatus;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-500">Tidak ada halaman yang cocok dengan kriteria pencarian.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map((p) => `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="py-3.5 px-4 font-bold text-slate-900">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2 h-2 rounded-full ${p.isSystem ? 'bg-emerald-500' : 'bg-teal-500'}"></span>
+              <span class="text-slate-900 font-bold">${p.title}</span>
+            </div>
+          </td>
+          <td class="py-3.5 px-4 font-mono text-slate-500 text-xs">${p.slug}</td>
+          <td class="py-3.5 px-4">
+            <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+              ${p.type}
+            </span>
+          </td>
+          <td class="py-3.5 px-4">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+              p.status === 'published' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'
+            }">
+              ${p.status === 'published' ? 'Published' : 'Draft'}
+            </span>
+          </td>
+          <td class="py-3.5 px-4 text-slate-500 text-xs">${p.updatedAt || 'Terbaru'}</td>
+          <td class="py-3.5 px-4 text-right">
+            <div class="inline-flex items-center gap-1.5">
+              ${
+                p.editorUrl
+                  ? `<a href="${p.editorUrl}" class="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs font-semibold border border-slate-200 shadow-xs transition-colors">Edit Halaman</a>`
+                  : `<button type="button" class="btn-edit-custom px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs font-semibold border border-slate-200 shadow-xs transition-colors" data-id="${p.id}">Edit</button>`
+              }
+              <a href="${p.slug}" target="_blank" class="p-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 text-xs border border-slate-200 transition-colors shadow-xs" title="Pratinjau di Frontend">
+                <i class="fas fa-external-link-alt text-[10px]"></i>
+              </a>
+              ${
+                !p.isSystem
+                  ? `<button type="button" class="btn-del-custom p-1.5 rounded-lg bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 transition-colors shadow-xs" data-id="${p.id}" title="Hapus Halaman"><i class="fas fa-trash text-[10px]"></i></button>`
+                  : ''
+              }
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      attachTableEvents();
+    }
+
+    function attachTableEvents() {
+      // Edit custom page
+      document.querySelectorAll('.btn-edit-custom').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          const custom = getCustomPages();
+          const target = custom.find((c) => c.id === id);
+          if (target && form && modal) {
+            (document.getElementById('p-id') as HTMLInputElement).value = target.id;
+            (document.getElementById('p-title') as HTMLInputElement).value = target.title;
+            (document.getElementById('p-slug') as HTMLInputElement).value = target.slug;
+            (document.getElementById('p-type') as HTMLSelectElement).value = target.type;
+            (document.getElementById('p-status') as HTMLSelectElement).value = target.status;
+            (document.getElementById('p-excerpt') as HTMLInputElement).value = target.excerpt || '';
+            (document.getElementById('p-content') as HTMLTextAreaElement).value = target.content || '';
+            (document.getElementById('p-seo-title') as HTMLInputElement).value = target.seoTitle || '';
+            (document.getElementById('p-seo-desc') as HTMLInputElement).value = target.seoDesc || '';
+            
+            const pImg = target.imageUrl || target.ogImage || '/images/hero/hero-outbound.webp';
+            const imgInp = document.getElementById('p-image-url') as HTMLInputElement | null;
+            const imgPrev = document.getElementById('p-img-preview') as HTMLImageElement | null;
+            if (imgInp) imgInp.value = pImg;
+            if (imgPrev) imgPrev.src = pImg;
+
+            const modalTitle = document.getElementById('page-modal-title');
+            if (modalTitle) modalTitle.textContent = 'Edit Halaman: ' + target.title;
+            modal.showModal();
+          }
+        });
+      });
+
+      // Delete custom page
+      document.querySelectorAll('.btn-del-custom').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const id = btn.getAttribute('data-id');
+          let custom = getCustomPages();
+          const target = custom.find((c: any) => c.id === id);
+          const confirmed = await (window as any).showAdminConfirm?.({
+            title: 'Hapus Halaman Kustom',
+            message: `Apakah Anda yakin ingin menghapus halaman "${target?.title || 'ini'}"? Tindakan ini tidak dapat dibatalkan.`,
+            type: 'delete',
+            confirmText: 'Ya, Hapus Halaman'
+          });
+          if (confirmed !== false) {
+            custom = custom.filter((c: any) => c.id !== id);
+            saveCustomPages(custom);
+            if (target && target.slug) {
+              await deletePageFromSupabase(target.slug);
+            }
+            showAlert('✓ Halaman kustom berhasil dihapus dari Front-End & Supabase!');
+            (window as any).showAdminNotification?.(
+              'Halaman Dihapus',
+              `Halaman kustom "${target?.title || ''}" berhasil dihapus dari sistem.`
+            );
+          }
+        });
+      });
+    }
+
+    const pImgInp = document.getElementById('p-image-url') as HTMLInputElement | null;
+    const pImgPrev = document.getElementById('p-img-preview') as HTMLImageElement | null;
+    const pImgFile = document.getElementById('p-image-file') as HTMLInputElement | null;
+
+    pImgInp?.addEventListener('input', () => {
+      if (pImgPrev) pImgPrev.src = pImgInp.value || '';
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('.btn-pimg-preset').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.getAttribute('data-val');
+        if (val) {
+          if (pImgInp) pImgInp.value = val;
+          if (pImgPrev) pImgPrev.src = val;
+        }
+      });
+    });
+
+    pImgFile?.addEventListener('change', () => {
+      const file = pImgFile.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const res = e.target?.result as string;
+          if (pImgInp) pImgInp.value = res;
+          if (pImgPrev) pImgPrev.src = res;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Add new custom page
+    document.getElementById('btn-add-custom-page')?.addEventListener('click', () => {
+      form?.reset();
+      (document.getElementById('p-id') as HTMLInputElement).value = '';
+      if (pImgInp) pImgInp.value = '/images/hero/hero-outbound.webp';
+      if (pImgPrev) pImgPrev.src = '/images/hero/hero-outbound.webp';
+      const modalTitle = document.getElementById('page-modal-title');
+      if (modalTitle) modalTitle.textContent = 'Buat Halaman Kustom Baru';
+      modal?.showModal();
+    });
+
+    document.getElementById('close-page-modal-btn')?.addEventListener('click', () => modal?.close());
+    document.getElementById('cancel-page-btn')?.addEventListener('click', () => modal?.close());
+
+    // Auto-slugify title
+    document.getElementById('p-title')?.addEventListener('input', (e) => {
+      const id = (document.getElementById('p-id') as HTMLInputElement).value;
+      if (!id) {
+        const val = (e.target as HTMLInputElement).value;
+        const slug = val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        (document.getElementById('p-slug') as HTMLInputElement).value = slug ? `/${slug}` : '';
+      }
+    });
+
+    // Form submit
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = (document.getElementById('p-id') as HTMLInputElement).value;
+      const title = (document.getElementById('p-title') as HTMLInputElement).value.trim();
+
+      const confirmed = await (window as any).showAdminConfirm?.({
+        title: id ? 'Konfirmasi Simpan Halaman' : 'Konfirmasi Buat Halaman Baru',
+        message: id
+          ? `Apakah Anda yakin ingin menyimpan perubahan pada halaman "${title}"?`
+          : `Apakah Anda yakin ingin membuat halaman kustom baru "${title}"?`,
+        type: 'save',
+        confirmText: id ? 'Ya, Simpan Perubahan' : 'Ya, Buat Halaman'
+      });
+      if (confirmed === false) return;
+
+      let slug = (document.getElementById('p-slug') as HTMLInputElement).value.trim();
+      if (!slug.startsWith('/')) slug = `/${slug}`;
+      const type = (document.getElementById('p-type') as HTMLSelectElement).value;
+      const status = (document.getElementById('p-status') as HTMLSelectElement).value;
+      const excerpt = (document.getElementById('p-excerpt') as HTMLInputElement).value.trim();
+      const content = (document.getElementById('p-content') as HTMLTextAreaElement).value.trim();
+      const seoTitle = (document.getElementById('p-seo-title') as HTMLInputElement).value.trim();
+      const seoDesc = (document.getElementById('p-seo-desc') as HTMLInputElement).value.trim();
+      const imageUrl = (document.getElementById('p-image-url') as HTMLInputElement)?.value || '/images/hero/hero-outbound.webp';
+
+      let custom = getCustomPages();
+
+      if (id) {
+        // Edit existing
+        const idx = custom.findIndex((c: any) => c.id === id);
+        if (idx >= 0) {
+          custom[idx] = {
+            ...custom[idx],
+            title,
+            slug,
+            type,
+            status,
+            excerpt,
+            content,
+            seoTitle,
+            seoDesc,
+            imageUrl,
+            updatedAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+          };
+        }
+      } else {
+        // Add new
+        custom.push({
+          id: 'custom-page-' + Date.now(),
+          title,
+          slug,
+          type,
+          status,
+          excerpt,
+          content,
+          seoTitle,
+          seoDesc,
+          imageUrl,
+          isSystem: false,
+          updatedAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+        });
+      }
+
+      saveCustomPages(custom);
+      modal?.close();
+
+      // Sync to Supabase directly
+      syncPageToSupabase(
+        slug,
+        title,
+        {
+          id,
+          title,
+          slug,
+          type,
+          status,
+          excerpt,
+          content,
+          seoTitle,
+          seoDesc,
+          imageUrl,
+          updatedAt: new Date().toISOString()
+        },
+        type.toLowerCase() === 'legal' ? 'legal' : 'standard',
+        { seoTitle, seoDesc, ogImage: imageUrl }
+      );
+
+      showAlert('✓ Halaman berhasil disimpan ke Front-End & Cloud Supabase!');
+      (window as any).showAdminNotification?.(
+        'Halaman Berhasil Disimpan!',
+        `Data halaman "${title}" berhasil disimpan dan disinkronkan ke Supabase.`
+      );
+    });
+
+    // Search and filter triggers
+    searchInput?.addEventListener('input', renderTable);
+    statusSelect?.addEventListener('change', renderTable);
+
+    // Initial render
+    renderTable();
+
+    // Hydrate extra custom pages from Supabase if any
+    (async () => {
+      const client = getSupabaseClient();
+      if (!client) return;
+      try {
+        const { data } = await client.from('pages').select('*');
+        if (data && data.length > 0) {
+          const custom = getCustomPages();
+          let modified = false;
+          data.forEach((p: any) => {
+            const isSystem = DEFAULT_SYSTEM_PAGES.some(sp => sp.slug === p.slug);
+            if (!isSystem && !custom.some((c: any) => c.slug === p.slug)) {
+              custom.push({
+                id: 'supabase-' + (p.id || p.slug),
+                title: p.title || p.slug,
+                slug: p.slug,
+                type: p.page_type || 'Custom',
+                status: p.status || 'published',
+                excerpt: p.seo_description || '',
+                content: typeof p.content === 'string' ? p.content : JSON.stringify(p.content),
+                seoTitle: p.seo_title || p.title,
+                seoDesc: p.seo_description || '',
+                isSystem: false,
+                updatedAt: p.updated_at ? new Date(p.updated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Terbaru'
+              });
+              modified = true;
+            }
+          });
+          if (modified) {
+            localStorage.setItem('vo_custom_pages', JSON.stringify(custom));
+            renderTable();
+          }
+        }
+      } catch (err) {
+        console.warn('Hydrate custom pages from Supabase error:', err);
+      }
+    })();
+  </script>
+</AdminLayout>

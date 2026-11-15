@@ -1,0 +1,232 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { FAQS } from '../../data/defaultContent';
+---
+
+<AdminLayout title="Kelola FAQ">
+  <div class="space-y-6 text-left">
+    
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+      <div>
+        <h1 class="font-heading font-black text-2xl uppercase tracking-wider text-slate-900 flex items-center gap-2.5">
+          <i class="fas fa-question-circle text-[#0A3832]"></i>
+          <span>KELOLA PERTANYAAN (FAQ)</span>
+        </h1>
+        <p class="text-xs text-slate-500 mt-1">
+          Pertanyaan dan jawaban resmi seputar layanan outbound di Batu & Malang (PRD Section 11.12).
+        </p>
+      </div>
+
+      <button
+        id="add-faq-btn"
+        type="button"
+        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0A3832] hover:bg-[#0D4940] text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-all hover:scale-105 cursor-pointer"
+      >
+        <i class="fas fa-plus text-white"></i>
+        <span>Tambah FAQ</span>
+      </button>
+    </div>
+
+    <div id="faq-alert" class="hidden p-3 rounded-lg text-xs font-bold"></div>
+
+    <div class="rounded-2xl bg-[#0B2B26] border border-[#235347] overflow-hidden shadow-2xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left">
+          <thead class="bg-[#072522] text-[10px] uppercase font-bold text-[#8EB69B] border-b border-[#163832]">
+            <tr>
+              <th class="py-3 px-4">No</th>
+              <th class="py-3 px-4">Pertanyaan</th>
+              <th class="py-3 px-4">Jawaban Resmi</th>
+              <th class="py-3 px-4 text-right">Tindakan</th>
+            </tr>
+          </thead>
+          <tbody id="faq-tbody" class="divide-y divide-[#163832] text-[#DAF1DE]/90">
+            <!-- Populated via script -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal Form -->
+    <dialog id="faq-modal" class="backdrop:bg-[#051F20]/80 bg-transparent p-4 max-w-lg w-full mx-auto my-auto text-white focus:outline-none">
+      <div class="rounded-2xl bg-[#163832] border border-[#235347] p-6 shadow-2xl space-y-4 text-left">
+        <div class="flex items-center justify-between border-b border-[#235347] pb-3">
+          <h3 class="font-heading font-black text-lg text-white uppercase tracking-wider">
+            Tambah / Edit FAQ
+          </h3>
+          <button id="close-faq-modal-btn" type="button" class="text-[#8EB69B] hover:text-white text-lg font-bold">✕</button>
+        </div>
+
+        <form id="faq-form" class="space-y-3.5">
+          <input type="hidden" id="faq-idx" />
+
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-[#DAF1DE] mb-1">Pertanyaan</label>
+            <input type="text" id="f-question" required class="w-full px-3 py-2 rounded bg-[#051F20]/90 border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]" />
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-[#DAF1DE] mb-1">Jawaban</label>
+            <textarea id="f-answer" rows="4" required class="w-full px-3 py-2 rounded bg-[#051F20]/90 border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]"></textarea>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-3 border-t border-[#235347]">
+            <button type="button" id="cancel-faq-btn" class="px-4 py-2 rounded-xl bg-[#0B2B26] hover:bg-[#163832] text-[#8EB69B] border border-[#235347] text-xs font-bold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-[#0A3832] hover:bg-[#0D4940] text-white font-bold text-xs uppercase shadow-md cursor-pointer flex items-center gap-1.5">
+              <i class="fas fa-save text-white"></i>
+              <span class="text-white">Simpan FAQ</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+  </div>
+
+  <script>
+    import { FAQS } from '../../data/defaultContent';
+    import { syncFaqToSupabase, deleteFaqFromSupabase } from '../../lib/supabaseSync';
+
+    const tbody = document.getElementById('faq-tbody');
+    const modal = document.getElementById('faq-modal') as HTMLDialogElement | null;
+    const form = document.getElementById('faq-form') as HTMLFormElement | null;
+    const alertBox = document.getElementById('faq-alert');
+
+    function getFaqs() {
+      const stored = localStorage.getItem('vo_faqs');
+      return stored ? JSON.parse(stored) : FAQS;
+    }
+
+    function saveFaqs(list: any[]) {
+      localStorage.setItem('vo_faqs', JSON.stringify(list));
+      window.dispatchEvent(new CustomEvent('vo_content_updated', { detail: { key: 'vo_faqs', data: list } }));
+      window.dispatchEvent(new Event('storage'));
+      try {
+        const bc = new BroadcastChannel('vo_sync_channel');
+        bc.postMessage({ type: 'VO_UPDATED', key: 'vo_faqs', data: list });
+      } catch (e) {}
+      renderTable();
+    }
+
+    function renderTable() {
+      if (!tbody) return;
+      const list = getFaqs();
+
+      tbody.innerHTML = list.map((item: any, idx: number) => `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="py-3.5 px-4 font-bold text-slate-500">${idx + 1}</td>
+          <td class="py-3.5 px-4 font-bold text-slate-900 max-w-xs">${item.question}</td>
+          <td class="py-3.5 px-4 text-slate-600 leading-relaxed max-w-md">${item.answer}</td>
+          <td class="py-3.5 px-4 text-right space-x-2 whitespace-nowrap">
+            <button class="edit-f-btn px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs font-semibold border border-slate-200 shadow-xs transition-colors cursor-pointer" data-idx="${idx}">
+              Edit
+            </button>
+            <button class="del-f-btn px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 text-rose-600 text-xs font-semibold border border-rose-200 transition-colors shadow-xs cursor-pointer" data-idx="${idx}">
+              Hapus
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      document.querySelectorAll<HTMLButtonElement>('.edit-f-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.idx);
+          const item = list[idx];
+          if (item && modal) {
+            (document.getElementById('faq-idx') as HTMLInputElement).value = String(idx);
+            (document.getElementById('f-question') as HTMLInputElement).value = item.question;
+            (document.getElementById('f-answer') as HTMLTextAreaElement).value = item.answer;
+            modal.showModal();
+          }
+        });
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('.del-f-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const idx = Number(btn.dataset.idx);
+          const target = list[idx];
+          const confirmed = await (window as any).showAdminConfirm?.({
+            title: 'Hapus FAQ',
+            message: `Apakah Anda yakin ingin menghapus pertanyaan FAQ "${target?.question || 'ini'}"? Tindakan ini tidak dapat dibatalkan.`,
+            type: 'delete',
+            confirmText: 'Ya, Hapus FAQ'
+          });
+          if (confirmed !== false) {
+            const targetQ = target?.question;
+            list.splice(idx, 1);
+            saveFaqs(list);
+            if (targetQ) {
+              await deleteFaqFromSupabase(targetQ);
+            }
+            (window as any).showAdminNotification?.(
+              'FAQ Dihapus',
+              'Pertanyaan FAQ berhasil dihapus dari sistem.'
+            );
+          }
+        });
+      });
+    }
+
+    renderTable();
+
+    document.getElementById('add-faq-btn')?.addEventListener('click', () => {
+      form?.reset();
+      (document.getElementById('faq-idx') as HTMLInputElement).value = '-1';
+      modal?.showModal();
+    });
+
+    document.getElementById('close-faq-modal-btn')?.addEventListener('click', () => modal?.close());
+    document.getElementById('cancel-faq-btn')?.addEventListener('click', () => modal?.close());
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const list = getFaqs();
+      const idx = Number((document.getElementById('faq-idx') as HTMLInputElement).value);
+      const question = (document.getElementById('f-question') as HTMLInputElement).value;
+
+      const confirmed = await (window as any).showAdminConfirm?.({
+        title: idx >= 0 ? 'Konfirmasi Simpan FAQ' : 'Konfirmasi Tambah FAQ',
+        message: idx >= 0 
+          ? `Apakah Anda yakin ingin menyimpan perubahan pada pertanyaan FAQ ini?`
+          : `Apakah Anda yakin ingin menambahkan pertanyaan FAQ baru ini?`,
+        type: 'save',
+        confirmText: idx >= 0 ? 'Ya, Simpan Perubahan' : 'Ya, Tambah FAQ'
+      });
+      if (confirmed === false) return;
+
+      const answer = (document.getElementById('f-answer') as HTMLTextAreaElement).value;
+
+      let savedItem: any;
+      if (idx >= 0) {
+        list[idx] = { ...list[idx], question, answer };
+        savedItem = list[idx];
+      } else {
+        savedItem = {
+          id: 'faq-' + Date.now(),
+          pageSlug: '/',
+          question,
+          answer,
+          sortOrder: list.length + 1
+        };
+        list.push(savedItem);
+      }
+
+      saveFaqs(list);
+      modal?.close();
+
+      // Background Supabase Sync
+      syncFaqToSupabase(savedItem);
+
+      if (alertBox) {
+        alertBox.className = 'p-3 rounded-lg text-xs font-bold bg-emerald-950 text-emerald-200 border border-emerald-500 block';
+        alertBox.textContent = '✓ Data FAQ berhasil disimpan ke Front-End & Supabase!';
+        setTimeout(() => alertBox.classList.add('hidden'), 2500);
+      }
+
+      (window as any).showAdminNotification?.(
+        'FAQ Berhasil Disimpan!',
+        'Data pertanyaan FAQ berhasil disimpan dan disinkronkan ke Supabase.'
+      );
+    });
+  </script>
+</AdminLayout>

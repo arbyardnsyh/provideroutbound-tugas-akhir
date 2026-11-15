@@ -1,0 +1,403 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { BLOG_POSTS } from '../../data/defaultContent';
+---
+
+<AdminLayout title="Kelola Artikel Blog">
+  <div class="space-y-6 text-left">
+    
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+      <div>
+        <h1 class="font-heading font-black text-2xl uppercase tracking-wider text-slate-900 flex items-center gap-2.5">
+          <i class="fas fa-feather-alt text-[#0A3832]"></i>
+          <span>KELOLA ARTIKEL BLOG &amp; TIPS</span>
+        </h1>
+        <p class="text-xs text-slate-500 mt-1">
+          Tulis, edit, pratinjau cuplikan SEO, dan atur status Draft/Published artikel karya Arby Ardiansyah (PRD Section 11.11).
+        </p>
+      </div>
+
+      <button
+        id="add-post-btn"
+        type="button"
+        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0A3832] hover:bg-[#0D4940] text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-all hover:scale-105 cursor-pointer"
+      >
+        <i class="fas fa-plus text-white"></i>
+        <span>Tulis Artikel Baru</span>
+      </button>
+    </div>
+
+    <div id="blog-alert" class="hidden p-3 rounded-lg text-xs font-bold"></div>
+
+    <!-- Table -->
+    <div class="rounded-2xl bg-[#0B2B26] border border-[#235347] overflow-hidden shadow-2xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left">
+          <thead class="bg-[#072522] text-[10px] uppercase font-bold text-[#8EB69B] border-b border-[#163832]">
+            <tr>
+              <th class="py-3 px-4">Judul Artikel</th>
+              <th class="py-3 px-4">Kategori</th>
+              <th class="py-3 px-4">Penulis</th>
+              <th class="py-3 px-4">Waktu Baca</th>
+              <th class="py-3 px-4">Status</th>
+              <th class="py-3 px-4 text-right">Tindakan</th>
+            </tr>
+          </thead>
+          <tbody id="blog-tbody" class="divide-y divide-[#163832] text-[#DAF1DE]/90">
+            <!-- Populated via script -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal Form (Blog Editor) -->
+    <dialog id="blog-modal" class="backdrop:bg-[#051F20]/80 bg-transparent p-4 max-w-2xl w-full mx-auto my-auto text-white focus:outline-none">
+      <div class="rounded-2xl bg-[#163832] border border-[#235347] p-6 shadow-2xl space-y-4 text-left">
+        <div class="flex items-center justify-between border-b border-[#235347] pb-3">
+          <h3 class="font-heading font-black text-lg text-white uppercase tracking-wider">
+            Editor Artikel Blog
+          </h3>
+          <button id="close-blog-modal-btn" type="button" class="text-[#8EB69B] hover:text-white text-lg font-bold">✕</button>
+        </div>
+
+        <form id="blog-form" class="space-y-3.5">
+          <input type="hidden" id="blog-idx" />
+
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-[#DAF1DE] mb-1">Judul Artikel</label>
+            <input type="text" id="b-title" required class="w-full px-3 py-2 rounded bg-[#051F20]/90 border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-[#DAF1DE] mb-1">Slug URL</label>
+              <input type="text" id="b-slug" required class="w-full px-3 py-2 rounded bg-[#051F20]/90 border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-[#DAF1DE] mb-1">Kategori</label>
+              <select id="b-category" required class="w-full px-3 py-2 rounded bg-[#051F20]/90 border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]">
+                <option value="Panduan Outbound">Panduan Outbound</option>
+                <option value="Tips Gathering">Tips Gathering</option>
+                <option value="Info Lokasi">Info Lokasi</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Featured Image Thumbnail Control -->
+          <div class="p-3 rounded-lg bg-[#051F20] border border-[#235347] space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-[#DAF1DE]">
+                Gambar Sampul / Thumbnail Artikel
+              </label>
+              <span class="text-[10px] text-[#8EB69B]">Upload / Preset</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-16 h-12 rounded-lg bg-[#0B2B26] border border-[#235347] overflow-hidden flex-shrink-0 flex items-center justify-center">
+                <img id="b-thumb-preview" src="/images/hero-bromo-sunrise.webp" alt="Thumb Preview" class="w-full h-full object-cover" />
+              </div>
+              <div class="flex-1 space-y-1.5">
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    id="b-thumb"
+                    class="flex-1 px-3 py-1.5 rounded-lg bg-[#0B2B26] border border-[#235347] text-white text-xs font-mono focus:outline-none focus:border-[#8EB69B]"
+                    value="/images/hero-bromo-sunrise.webp"
+                  />
+                  <label class="px-3 py-1.5 rounded-lg bg-[#163832] hover:bg-[#235347] text-[#DAF1DE] text-xs font-bold border border-[#235347] cursor-pointer flex items-center gap-1.5 transition-all">
+                    <i class="fas fa-upload text-[11px]"></i>
+                    <span>Upload</span>
+                    <input type="file" id="b-thumb-file" accept="image/*" class="hidden" />
+                  </label>
+                </div>
+                <div class="flex flex-wrap items-center gap-1.5 text-[10px]">
+                  <span class="text-[#8EB69B]">Preset:</span>
+                  <button type="button" class="btn-bthumb-preset px-2 py-0.5 rounded bg-[#0B2B26] hover:bg-[#163832] text-[#DAF1DE] border border-[#235347]" data-val="/images/hero-bromo-sunrise.webp">Bromo Sunrise</button>
+                  <button type="button" class="btn-bthumb-preset px-2 py-0.5 rounded bg-[#0B2B26] hover:bg-[#163832] text-[#DAF1DE] border border-[#235347]" data-val="/images/hero/hero-outbound.webp">Hero Outbound</button>
+                  <button type="button" class="btn-bthumb-preset px-2 py-0.5 rounded bg-[#0B2B26] hover:bg-[#163832] text-[#DAF1DE] border border-[#235347]" data-val="/images/about/team-fasilitator.webp">Tim Fasilitator</button>
+                  <button type="button" class="btn-bthumb-preset px-2 py-0.5 rounded bg-[#0B2B26] hover:bg-[#163832] text-[#DAF1DE] border border-[#235347]" data-val="/images/destinasi/coban-rondo.webp">Coban Rondo</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-[#DAF1DE] mb-1">
+              Answer-First Box (Ringkasan Inti Jawaban Cepat)
+            </label>
+            <textarea id="b-answer-first" rows="2" placeholder="Jawaban langsung terhadap pertanyaan utama (40-80 kata)..." class="w-full px-3 py-2 rounded bg-[#051F20]/90 border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-[#DAF1DE] mb-1">Ringkasan / Excerpt</label>
+            <textarea id="b-excerpt" rows="2" required class="w-full px-3 py-2 rounded bg-[#051F20]/90 border border-[#235347] text-white text-xs focus:outline-none focus:border-[#8EB69B]"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-[#DAF1DE] mb-1">Isi Konten (Format Markdown)</label>
+            <textarea id="b-body" rows="6" required class="w-full px-3 py-2 rounded bg-[#051F20]/90 border border-[#235347] text-white text-xs font-mono focus:outline-none focus:border-[#8EB69B]"></textarea>
+          </div>
+
+          <div class="flex items-center justify-between pt-3 border-t border-[#235347]">
+            <div class="flex items-center gap-2">
+              <label class="text-xs text-[#8EB69B] font-bold">Status Publikasi:</label>
+              <select id="b-status" class="px-2 py-1 rounded bg-[#051F20] border border-[#235347] text-[#DAF1DE] text-xs font-bold">
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <button type="button" id="cancel-blog-btn" class="px-4 py-2 rounded-xl bg-[#0B2B26] hover:bg-[#163832] text-[#8EB69B] border border-[#235347] text-xs font-bold">Batal</button>
+              <button type="submit" class="px-5 py-2 rounded-xl bg-[#0A3832] hover:bg-[#0D4940] text-white font-bold text-xs uppercase shadow-md cursor-pointer flex items-center gap-1.5">
+                <i class="fas fa-save text-white"></i>
+                <span class="text-white">Simpan Artikel</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+  </div>
+
+  <script>
+    import { BLOG_POSTS } from '../../data/defaultContent';
+    import { syncBlogPostToSupabase, deleteBlogPostFromSupabase } from '../../lib/supabaseSync';
+
+    const tbody = document.getElementById('blog-tbody');
+    const modal = document.getElementById('blog-modal') as HTMLDialogElement | null;
+    const form = document.getElementById('blog-form') as HTMLFormElement | null;
+    const alertBox = document.getElementById('blog-alert');
+    const titleInput = document.getElementById('b-title') as HTMLInputElement | null;
+    const slugInput = document.getElementById('b-slug') as HTMLInputElement | null;
+
+    function getPosts() {
+      const stored = localStorage.getItem('vo_blog');
+      return stored ? JSON.parse(stored) : BLOG_POSTS;
+    }
+
+    function savePosts(list: any[]) {
+      localStorage.setItem('vo_blog', JSON.stringify(list));
+      localStorage.setItem('vo_blogs', JSON.stringify(list));
+      window.dispatchEvent(new CustomEvent('vo_content_updated', { detail: { key: 'vo_blog', data: list } }));
+      window.dispatchEvent(new Event('storage'));
+      try {
+        const bc = new BroadcastChannel('vo_sync_channel');
+        bc.postMessage({ type: 'VO_UPDATED', key: 'vo_blog', data: list });
+      } catch (e) {}
+      renderTable();
+    }
+
+    function renderTable() {
+      if (!tbody) return;
+      const list = getPosts();
+
+      tbody.innerHTML = list.map((post: any, idx: number) => `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="py-3.5 px-4 font-bold text-slate-900 max-w-sm">
+            <div class="flex items-center gap-2.5">
+              <img src="${post.thumbnailUrl || '/images/hero-bromo-sunrise.webp'}" alt="${post.title}" class="w-10 h-8 rounded-lg object-cover border border-slate-200 flex-shrink-0" />
+              <div class="min-w-0">
+                <div class="truncate text-slate-900 font-bold">${post.title}</div>
+                <div class="text-[11px] text-slate-500 font-mono">/blog/${post.slug}</div>
+              </div>
+            </div>
+          </td>
+          <td class="py-3.5 px-4 text-emerald-700 font-semibold">${post.category}</td>
+          <td class="py-3.5 px-4 text-slate-600">${post.authorName}</td>
+          <td class="py-3.5 px-4 text-slate-500 text-xs">${post.readingTimeMinutes} mnt</td>
+          <td class="py-3.5 px-4">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+              post.status === 'draft' ? 'bg-slate-100 text-slate-600 border border-slate-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+            }">
+              ${post.status === 'draft' ? 'Draft' : 'Published'}
+            </span>
+          </td>
+          <td class="py-3.5 px-4 text-right space-x-2">
+            <a href="/blog/${post.slug}" target="_blank" class="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 text-xs font-semibold border border-slate-200 shadow-xs transition-colors">
+              Lihat
+            </a>
+            <button class="edit-b-btn px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs font-semibold border border-slate-200 shadow-xs transition-colors cursor-pointer" data-idx="${idx}">
+              Edit
+            </button>
+            <button class="del-b-btn px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 text-rose-600 text-xs font-semibold border border-rose-200 transition-colors shadow-xs cursor-pointer" data-idx="${idx}">
+              Hapus
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      const thumbInput = document.getElementById('b-thumb') as HTMLInputElement | null;
+      const thumbPreview = document.getElementById('b-thumb-preview') as HTMLImageElement | null;
+      const thumbFile = document.getElementById('b-thumb-file') as HTMLInputElement | null;
+
+      thumbInput?.addEventListener('input', () => {
+        if (thumbPreview) thumbPreview.src = thumbInput.value || '';
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('.btn-bthumb-preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = btn.getAttribute('data-val');
+          if (val) {
+            if (thumbInput) thumbInput.value = val;
+            if (thumbPreview) thumbPreview.src = val;
+          }
+        });
+      });
+
+      thumbFile?.addEventListener('change', () => {
+        const file = thumbFile.files?.[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const res = e.target?.result as string;
+            if (thumbInput) thumbInput.value = res;
+            if (thumbPreview) thumbPreview.src = res;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('.edit-b-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.idx);
+          const item = list[idx];
+          if (item && modal) {
+            (document.getElementById('blog-idx') as HTMLInputElement).value = String(idx);
+            (document.getElementById('b-title') as HTMLInputElement).value = item.title;
+            (document.getElementById('b-slug') as HTMLInputElement).value = item.slug;
+            (document.getElementById('b-category') as HTMLSelectElement).value = item.category;
+            (document.getElementById('b-answer-first') as HTMLTextAreaElement).value = item.answerFirst || '';
+            (document.getElementById('b-excerpt') as HTMLTextAreaElement).value = item.excerpt;
+            (document.getElementById('b-body') as HTMLTextAreaElement).value = item.body;
+            (document.getElementById('b-status') as HTMLSelectElement).value = item.status || 'published';
+
+            const th = item.thumbnailUrl || '/images/hero-bromo-sunrise.webp';
+            if (thumbInput) thumbInput.value = th;
+            if (thumbPreview) thumbPreview.src = th;
+
+            modal.showModal();
+          }
+        });
+      });
+
+      document.querySelectorAll<HTMLButtonElement>('.del-b-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const idx = Number(btn.dataset.idx);
+          const target = list[idx];
+          const confirmed = await (window as any).showAdminConfirm?.({
+            title: 'Hapus Artikel Blog',
+            message: `Apakah Anda yakin ingin menghapus artikel "${target?.title || 'ini'}"? Tindakan ini tidak dapat dibatalkan.`,
+            type: 'delete',
+            confirmText: 'Ya, Hapus Artikel'
+          });
+          if (confirmed !== false) {
+            const targetSlug = target?.slug;
+            list.splice(idx, 1);
+            savePosts(list);
+            if (targetSlug) {
+              await deleteBlogPostFromSupabase(targetSlug);
+            }
+            (window as any).showAdminNotification?.(
+              'Artikel Dihapus',
+              `Artikel "${target?.title || ''}" berhasil dihapus dari sistem.`
+            );
+          }
+        });
+      });
+    }
+
+    renderTable();
+
+    // Auto-generate slug when title typed
+    titleInput?.addEventListener('input', () => {
+      const idx = (document.getElementById('blog-idx') as HTMLInputElement).value;
+      if (idx === '-1' && slugInput) {
+        slugInput.value = titleInput.value.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      }
+    });
+
+    document.getElementById('add-post-btn')?.addEventListener('click', () => {
+      form?.reset();
+      (document.getElementById('blog-idx') as HTMLInputElement).value = '-1';
+      const thInp = document.getElementById('b-thumb') as HTMLInputElement | null;
+      const thPrev = document.getElementById('b-thumb-preview') as HTMLImageElement | null;
+      if (thInp) thInp.value = '/images/hero-bromo-sunrise.webp';
+      if (thPrev) thPrev.src = '/images/hero-bromo-sunrise.webp';
+      modal?.showModal();
+    });
+
+    document.getElementById('close-blog-modal-btn')?.addEventListener('click', () => modal?.close());
+    document.getElementById('cancel-blog-btn')?.addEventListener('click', () => modal?.close());
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const list = getPosts();
+      const idx = Number((document.getElementById('blog-idx') as HTMLInputElement).value);
+      const title = (document.getElementById('b-title') as HTMLInputElement).value;
+
+      const confirmed = await (window as any).showAdminConfirm?.({
+        title: idx >= 0 ? 'Konfirmasi Simpan Artikel' : 'Konfirmasi Publikasi Artikel',
+        message: idx >= 0 
+          ? `Apakah Anda yakin ingin menyimpan perubahan pada artikel "${title}"?`
+          : `Apakah Anda yakin ingin menambahkan artikel baru "${title}"?`,
+        type: 'save',
+        confirmText: idx >= 0 ? 'Ya, Simpan Perubahan' : 'Ya, Tambah Artikel'
+      });
+      if (confirmed === false) return;
+
+      const slug = (document.getElementById('b-slug') as HTMLInputElement).value;
+      const category = (document.getElementById('b-category') as HTMLSelectElement).value;
+      const answerFirst = (document.getElementById('b-answer-first') as HTMLTextAreaElement).value;
+      const excerpt = (document.getElementById('b-excerpt') as HTMLTextAreaElement).value;
+      const body = (document.getElementById('b-body') as HTMLTextAreaElement).value;
+      const status = (document.getElementById('b-status') as HTMLSelectElement).value;
+      const thumbnailUrl = (document.getElementById('b-thumb') as HTMLInputElement)?.value || '/images/hero-bromo-sunrise.webp';
+
+      let savedItem: any;
+      if (idx >= 0) {
+        list[idx] = { ...list[idx], title, slug, category, answerFirst, excerpt, body, status, thumbnailUrl };
+        savedItem = list[idx];
+      } else {
+        savedItem = {
+          id: 'post-' + Date.now(),
+          title,
+          slug,
+          excerpt,
+          body,
+          category,
+          authorName: 'Arby Ardiansyah',
+          authorAvatar: '/images/author-artikel/author-artikel-arby-ardiansyah.webp',
+          authorBio: 'Lead Outbound Consultant & Fasilitator Tersertifikasi BNSP di Batu Malang.',
+          thumbnailUrl,
+          imageAlt: title,
+          seoTitle: `${title} | Provider Outbound`,
+          seoDescription: excerpt,
+          canonicalUrl: `https://provideroutbound.web.id/blog/${slug}`,
+          publishedAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+          readingTimeMinutes: Math.max(1, Math.ceil(body.split(' ').length / 200)),
+          answerFirst,
+          status
+        };
+        list.unshift(savedItem);
+      }
+
+      savePosts(list);
+      modal?.close();
+
+      // Background Supabase Sync
+      syncBlogPostToSupabase(savedItem);
+
+      if (alertBox) {
+        alertBox.className = 'p-3 rounded-lg text-xs font-bold bg-emerald-950 text-emerald-200 border border-emerald-500 block';
+        alertBox.textContent = '✓ Artikel berhasil disimpan ke Front-End & Supabase!';
+        setTimeout(() => alertBox.classList.add('hidden'), 2500);
+      }
+
+      (window as any).showAdminNotification?.(
+        'Artikel Berhasil Disimpan!',
+        `Artikel "${savedItem.title}" berhasil disimpan dan disinkronkan ke Supabase.`
+      );
+    });
+  </script>
+</AdminLayout>

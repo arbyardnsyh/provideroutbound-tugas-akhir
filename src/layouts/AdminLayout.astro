@@ -1,0 +1,517 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const currentPath = Astro.url.pathname;
+
+const navSections = [
+  {
+    heading: 'Ringkasan Utama',
+    items: [
+      { label: 'Dashboard Ringkasan', url: '/admin', icon: 'fas fa-chart-pie' },
+    ]
+  },
+  {
+    heading: 'Kelola Halaman (CRUD)',
+    items: [
+      { label: 'Master Semua Halaman', url: '/admin/halaman', icon: 'fas fa-layer-group', exact: true },
+      { label: 'Halaman Beranda', url: '/admin/halaman/beranda', icon: 'fas fa-home' },
+      { label: 'Halaman Layanan', url: '/admin/layanan', icon: 'fas fa-briefcase' },
+      { label: 'Halaman Paket Pilihan', url: '/admin/paket', icon: 'fas fa-box-open' },
+      { label: 'Halaman Galeri Foto', url: '/admin/galeri', icon: 'fas fa-camera-retro' },
+      { label: 'Halaman Tentang Kami', url: '/admin/halaman/tentang-kami', icon: 'fas fa-users' },
+      { label: 'Halaman Kontak & Lokasi', url: '/admin/halaman/kontak', icon: 'fas fa-phone-alt' },
+      { label: 'Halaman Artikel Blog', url: '/admin/blog', icon: 'fas fa-feather-alt' },
+      { label: 'Halaman Testimoni', url: '/admin/testimoni', icon: 'fas fa-comment-dots' },
+      { label: 'Halaman FAQ', url: '/admin/faq', icon: 'fas fa-question-circle' },
+      { label: 'Halaman Kebijakan & Syarat', url: '/admin/halaman/legal', icon: 'fas fa-balance-scale' },
+    ]
+  },
+  {
+    heading: 'Data Konsultasi',
+    items: [
+      { label: 'Leads Konsultasi', url: '/admin/leads', icon: 'fas fa-inbox' },
+    ]
+  },
+  {
+    heading: 'Pengaturan & Akun',
+    items: [
+      { label: 'Pengaturan Global', url: '/admin/pengaturan', icon: 'fas fa-cog' },
+      { label: 'Profil Administrator', url: '/admin/profil', icon: 'fas fa-user-shield' },
+    ]
+  }
+];
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} | Admin Dashboard Provider Outbound</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/webp" href="/images/logo/logo-provider-outbound.webp" />
+    <link rel="apple-touch-icon" href="/images/logo/logo-provider-outbound.webp" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- FontAwesome 6 Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      crossorigin="anonymous"
+    />
+  </head>
+
+  <body class="admin-body font-sans h-screen flex antialiased overflow-hidden bg-[#F4F7F6]">
+    
+    <!-- Mobile Backdrop Overlay -->
+    <div id="admin-sidebar-backdrop" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-40 hidden lg:hidden transition-opacity"></div>
+
+    <!-- Left Sidebar (Pine / Forest Emerald Palette - Full Height) -->
+    <aside
+      id="admin-sidebar"
+      class="w-64 bg-[#0A3832] text-white border-r border-[#082D28] flex flex-col h-full z-50 fixed inset-y-0 left-0 -translate-x-full lg:translate-x-0 lg:static transition-transform duration-200 ease-in-out shadow-2xl lg:shadow-none flex-shrink-0"
+    >
+      <!-- Brand Header -->
+      <div class="h-16 flex items-center justify-between px-4 border-b border-white/10 flex-shrink-0 bg-[#072B26]/60">
+        <a href="/admin" class="flex items-center gap-2.5 group min-w-0">
+          <img
+            src="/images/logo/logo-provider-outbound.webp"
+            alt="Logo Provider Outbound"
+            class="w-9 h-9 rounded-full object-cover border-2 border-emerald-400 shadow-md flex-shrink-0 group-hover:scale-105 transition-transform"
+          />
+          <div class="flex flex-col min-w-0">
+            <span class="font-heading font-black text-xs sm:text-sm uppercase tracking-wider text-white truncate">
+              PROVIDER OUTBOUND
+            </span>
+            <span class="text-[9px] uppercase tracking-widest text-emerald-300 font-semibold -mt-0.5">
+              Admin Control Center
+            </span>
+          </div>
+        </a>
+
+        <!-- Close button on mobile -->
+        <button
+          type="button"
+          id="close-sidebar-mobile-btn"
+          class="lg:hidden p-1.5 rounded-lg text-emerald-200 hover:text-white hover:bg-white/10"
+          aria-label="Tutup Menu"
+        >
+          <i class="fas fa-times text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Navigation Menu Items (Scrollable with visible scrollbar & scroll buttons) -->
+      <div id="admin-sidebar-nav" class="flex-1 overflow-y-auto p-3 space-y-3">
+        {navSections.map((sec) => (
+          <div class="space-y-0.5">
+            <div class="text-[9px] uppercase font-bold text-emerald-200/60 px-2.5 py-1 tracking-widest">
+              {sec.heading}
+            </div>
+
+            {sec.items.map((item) => {
+              const isActive = item.exact
+                ? currentPath === item.url
+                : currentPath === item.url || (item.url !== '/admin' && currentPath.startsWith(item.url));
+
+              return (
+                <a
+                  href={item.url}
+                  class={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all ${
+                    isActive
+                      ? 'bg-white/15 text-white font-bold ring-1 ring-white/20 shadow-sm translate-x-1'
+                      : 'text-white/80 hover:text-white hover:bg-white/10 hover:translate-x-0.5'
+                  }`}
+                >
+                  <i class={`${item.icon} text-xs w-4 text-center ${isActive ? 'text-white' : 'text-emerald-300'}`}></i>
+                  <span class="truncate">{item.label}</span>
+                </a>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+
+      <!-- Sidebar Scroll Control Helpers ("Button Scroll") -->
+      <div class="flex items-center justify-between px-3 py-1.5 bg-[#072B26]/60 border-t border-white/5 text-[10px] text-emerald-200/80 select-none flex-shrink-0">
+        <span class="flex items-center gap-1.5 font-medium">
+          <i class="fas fa-arrows-alt-v text-[9px] text-emerald-400"></i>
+          <span>Scroll Menu</span>
+        </span>
+        <div class="flex items-center gap-1">
+          <button
+            type="button"
+            id="sidebar-scroll-up"
+            class="w-6 h-6 rounded-md bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+            title="Scroll ke Atas"
+          >
+            <i class="fas fa-chevron-up text-[9px]"></i>
+          </button>
+          <button
+            type="button"
+            id="sidebar-scroll-down"
+            class="w-6 h-6 rounded-md bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+            title="Scroll ke Bawah"
+          >
+            <i class="fas fa-chevron-down text-[9px]"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- User Account Card (Bottom Sidebar, matching Reference Image) -->
+      <div class="p-3 border-t border-white/10 bg-[#072B26]/80 flex-shrink-0">
+        <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+          <a href="/admin/profil" class="flex items-center gap-2.5 min-w-0 flex-1 group" title="Buka Pengaturan Profil Admin">
+            <img
+              id="sidebar-admin-avatar"
+              src="/images/author-artikel/author-artikel-arby-ardiansyah.webp"
+              alt="Foto Profil Admin"
+              class="w-8 h-8 rounded-full object-cover border-2 border-emerald-400 flex-shrink-0"
+            />
+            <div class="flex flex-col min-w-0">
+              <span id="sidebar-admin-name" class="font-bold text-xs text-white truncate group-hover:text-emerald-200 transition-colors">
+                Arby Ardiansyah
+              </span>
+              <span class="text-[9px] text-emerald-300/80 uppercase tracking-wider font-semibold">
+                Super Admin
+              </span>
+            </div>
+          </a>
+          <a
+            href="/admin/login"
+            id="admin-logout-btn"
+            class="p-2 rounded-lg text-emerald-200/80 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"
+            title="Keluar dari Dashboard"
+          >
+            <i class="fas fa-sign-out-alt text-xs"></i>
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Side: Topbar + Main Canvas -->
+    <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-[#F4F7F6]">
+      
+      <!-- Topbar Header (Clean White / Light Slate) -->
+      <header class="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between flex-shrink-0 shadow-xs z-30">
+        <div class="flex items-center gap-3">
+          <!-- Mobile Sidebar Toggle -->
+          <button
+            id="admin-sidebar-toggle"
+            type="button"
+            class="lg:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+            aria-label="Buka Menu Sidebar"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          <!-- Breadcrumb Title -->
+          <div class="flex items-center gap-2 text-xs">
+            <span class="text-slate-400 font-medium hidden sm:inline">Admin</span>
+            <span class="text-slate-300 hidden sm:inline">/</span>
+            <span class="text-slate-800 font-bold font-heading text-sm sm:text-base tracking-wide">{title}</span>
+          </div>
+        </div>
+
+        <!-- Right Header Actions -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Supabase Cloud Sync Status Pill -->
+          <div class="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Cloud Supabase Aktif</span>
+          </div>
+
+          <!-- Preview Frontend Web -->
+          <a
+            href="/"
+            target="_blank"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0A3832] hover:bg-[#0D4940] text-white text-xs font-semibold shadow-xs transition-all hover:scale-105"
+            title="Buka Website Frontend"
+          >
+            <i class="fas fa-external-link-alt text-[10px]"></i>
+            <span class="hidden sm:inline">Lihat Web</span>
+          </a>
+
+          <!-- Profile Shortcut -->
+          <a
+            href="/admin/profil"
+            class="flex items-center gap-2 p-1 pl-2 pr-2.5 rounded-lg hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-colors"
+            title="Pengaturan Profil Admin"
+          >
+            <img
+              id="topbar-admin-avatar"
+              src="/images/author-artikel/author-artikel-arby-ardiansyah.webp"
+              alt="Foto Profil Admin"
+              class="w-7 h-7 rounded-full object-cover border border-emerald-600"
+            />
+            <span id="topbar-admin-name" class="hidden md:inline font-semibold text-xs text-slate-700">
+              Arby Ardiansyah
+            </span>
+          </a>
+        </div>
+      </header>
+
+      <!-- Main Content Area (Clean White Canvas) -->
+      <main class="admin-main flex-1 overflow-y-auto overflow-x-hidden scroll-smooth p-4 sm:p-6 lg:p-8 bg-[#F4F7F6]">
+        <div class="max-w-7xl mx-auto space-y-6">
+          <slot />
+        </div>
+      </main>
+
+    </div>
+
+    <!-- Interactive Elegant Floating Top Toast Notification -->
+    <div
+      id="admin-top-toast"
+      class="fixed top-5 left-1/2 -translate-x-1/2 z-[100] max-w-lg w-[92vw] sm:w-auto bg-white border border-emerald-500/40 shadow-2xl rounded-2xl p-4 flex items-center gap-3.5 transition-all duration-300 transform -translate-y-28 opacity-0 pointer-events-none ring-4 ring-emerald-500/10"
+      role="alert"
+    >
+      <div id="toast-icon-wrapper" class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center flex-shrink-0 text-base shadow-xs">
+        <i id="toast-icon" class="fas fa-check-circle"></i>
+      </div>
+      <div class="flex-1 min-w-0 pr-2">
+        <div id="toast-title" class="font-heading font-black text-xs sm:text-sm uppercase tracking-wider text-slate-900">
+          Perubahan Berhasil Disimpan!
+        </div>
+        <div id="toast-message" class="text-xs text-slate-500 mt-0.5">
+          Data terbaru telah diperbarui dan disinkronkan ke Supabase Cloud.
+        </div>
+      </div>
+      <button
+        type="button"
+        id="toast-close-btn"
+        class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors flex-shrink-0 cursor-pointer"
+        aria-label="Tutup Notifikasi"
+      >
+        <i class="fas fa-times text-xs"></i>
+      </button>
+    </div>
+
+    <!-- Universal Elegant Admin Confirmation Modal -->
+    <dialog
+      id="admin-confirm-dialog"
+      class="backdrop:bg-slate-900/60 backdrop:backdrop-blur-xs bg-transparent p-4 max-w-md w-full mx-auto my-auto text-slate-800 focus:outline-none z-[110]"
+    >
+      <div class="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 text-center">
+        <!-- Animated Icon Wrapper -->
+        <div id="confirm-icon-wrapper" class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-sm bg-emerald-50 text-[#0A3832]">
+          <i id="confirm-icon" class="fas fa-save"></i>
+        </div>
+
+        <!-- Title & Message -->
+        <div class="space-y-2">
+          <h3 id="confirm-title" class="font-heading font-black text-lg sm:text-xl uppercase tracking-wider text-slate-900">
+            Konfirmasi Simpan Perubahan
+          </h3>
+          <p id="confirm-message" class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            Apakah Anda yakin untuk melakukan perubahan ini? Seluruh data terbaru akan diperbarui dan disinkronkan ke Supabase Cloud.
+          </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-center gap-3 pt-2">
+          <button
+            type="button"
+            id="confirm-cancel-btn"
+            class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+          >
+            Batal
+          </button>
+          <button
+            type="button"
+            id="confirm-ok-btn"
+            class="flex-1 px-4 py-2.5 rounded-xl bg-[#0A3832] hover:bg-[#0D4940] text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-all hover:scale-105 cursor-pointer"
+          >
+            Ya, Lanjutkan
+          </button>
+        </div>
+      </div>
+    </dialog>
+
+    <script>
+      import { pullLatestFromSupabase } from '../lib/supabaseSync';
+
+      // ==========================================
+      // Global Notification Toast (Interactive & Elegant)
+      // ==========================================
+      (window as any).showAdminNotification = function(title?: string, message?: string, isError = false) {
+        const toast = document.getElementById('admin-top-toast');
+        const toastTitle = document.getElementById('toast-title');
+        const toastMsg = document.getElementById('toast-message');
+        const toastIcon = document.getElementById('toast-icon');
+        const toastIconWrapper = document.getElementById('toast-icon-wrapper');
+        if (!toast) return;
+
+        if (toastTitle) toastTitle.textContent = title || (isError ? 'Gagal Menyimpan' : 'Perubahan Berhasil Disimpan!');
+        if (toastMsg) toastMsg.textContent = message || (isError ? 'Terjadi kesalahan saat memproses data.' : 'Data terbaru telah diperbarui dan disinkronkan ke Supabase Cloud.');
+
+        if (isError) {
+          toast.className = 'fixed top-5 left-1/2 -translate-x-1/2 z-[100] max-w-lg w-[92vw] sm:w-auto bg-white border border-rose-500/40 shadow-2xl rounded-2xl p-4 flex items-center gap-3.5 transition-all duration-300 transform translate-y-0 opacity-100 pointer-events-auto ring-4 ring-rose-500/10';
+          if (toastIconWrapper) toastIconWrapper.className = 'w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center flex-shrink-0 text-base shadow-xs';
+          if (toastIcon) toastIcon.className = 'fas fa-exclamation-circle';
+        } else {
+          toast.className = 'fixed top-5 left-1/2 -translate-x-1/2 z-[100] max-w-lg w-[92vw] sm:w-auto bg-white border border-emerald-500/40 shadow-2xl rounded-2xl p-4 flex items-center gap-3.5 transition-all duration-300 transform translate-y-0 opacity-100 pointer-events-auto ring-4 ring-emerald-500/10';
+          if (toastIconWrapper) toastIconWrapper.className = 'w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center flex-shrink-0 text-base shadow-xs';
+          if (toastIcon) toastIcon.className = 'fas fa-check-circle';
+        }
+
+        clearTimeout((window as any).__toastTimer);
+        (window as any).__toastTimer = setTimeout(() => {
+          toast.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+          toast.classList.add('-translate-y-28', 'opacity-0', 'pointer-events-none');
+        }, 4000);
+      };
+
+      document.getElementById('toast-close-btn')?.addEventListener('click', () => {
+        const toast = document.getElementById('admin-top-toast');
+        if (toast) {
+          toast.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+          toast.classList.add('-translate-y-28', 'opacity-0', 'pointer-events-none');
+        }
+      });
+
+      // ==========================================
+      // Universal Confirmation Modal (Save & Delete)
+      // ==========================================
+      (window as any).showAdminConfirm = function({
+        title = 'Konfirmasi Tindakan',
+        message = 'Apakah Anda yakin ingin melanjutkan tindakan ini?',
+        type = 'save',
+        confirmText = 'Ya, Simpan',
+        cancelText = 'Batal'
+      }: any = {}) {
+        return new Promise((resolve) => {
+          const dialog = document.getElementById('admin-confirm-dialog') as HTMLDialogElement | null;
+          const titleEl = document.getElementById('confirm-title');
+          const msgEl = document.getElementById('confirm-message');
+          const iconEl = document.getElementById('confirm-icon');
+          const iconWrap = document.getElementById('confirm-icon-wrapper');
+          const okBtn = document.getElementById('confirm-ok-btn');
+          const cancelBtn = document.getElementById('confirm-cancel-btn');
+
+          if (!dialog) {
+            resolve(confirm(`${title}\n\n${message}`));
+            return;
+          }
+
+          if (titleEl) titleEl.textContent = title;
+          if (msgEl) msgEl.textContent = message;
+          if (okBtn) okBtn.textContent = confirmText;
+          if (cancelBtn) cancelBtn.textContent = cancelText;
+
+          if (type === 'delete') {
+            if (iconWrap) iconWrap.className = 'w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-sm bg-rose-50 text-rose-600';
+            if (iconEl) iconEl.className = 'fas fa-trash-alt';
+            if (okBtn) okBtn.className = 'flex-1 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-all hover:scale-105 cursor-pointer';
+          } else {
+            if (iconWrap) iconWrap.className = 'w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-sm bg-emerald-50 text-[#0A3832]';
+            if (iconEl) iconEl.className = 'fas fa-save';
+            if (okBtn) okBtn.className = 'flex-1 px-4 py-2.5 rounded-xl bg-[#0A3832] hover:bg-[#0D4940] text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-all hover:scale-105 cursor-pointer';
+          }
+
+          const onOk = () => {
+            cleanup();
+            dialog.close();
+            resolve(true);
+          };
+
+          const onCancel = () => {
+            cleanup();
+            dialog.close();
+            resolve(false);
+          };
+
+          const cleanup = () => {
+            okBtn?.removeEventListener('click', onOk);
+            cancelBtn?.removeEventListener('click', onCancel);
+          };
+
+          okBtn?.addEventListener('click', onOk);
+          cancelBtn?.addEventListener('click', onCancel);
+
+          dialog.showModal();
+        });
+      };
+
+      // Sidebar mobile toggle & backdrop
+      const toggle = document.getElementById('admin-sidebar-toggle');
+      const sidebar = document.getElementById('admin-sidebar');
+      const backdrop = document.getElementById('admin-sidebar-backdrop');
+      const closeMobileBtn = document.getElementById('close-sidebar-mobile-btn');
+
+      function closeMobileSidebar() {
+        if (sidebar) {
+          sidebar.classList.add('-translate-x-full');
+          backdrop?.classList.add('hidden');
+        }
+      }
+
+      function openMobileSidebar() {
+        if (sidebar) {
+          sidebar.classList.remove('-translate-x-full');
+          backdrop?.classList.remove('hidden');
+        }
+      }
+
+      toggle?.addEventListener('click', openMobileSidebar);
+      closeMobileBtn?.addEventListener('click', closeMobileSidebar);
+      backdrop?.addEventListener('click', closeMobileSidebar);
+
+      // Sidebar Scroll Buttons ("Button Scroll")
+      document.getElementById('sidebar-scroll-up')?.addEventListener('click', () => {
+        document.getElementById('admin-sidebar-nav')?.scrollBy({ top: -160, behavior: 'smooth' });
+      });
+      document.getElementById('sidebar-scroll-down')?.addEventListener('click', () => {
+        document.getElementById('admin-sidebar-nav')?.scrollBy({ top: 160, behavior: 'smooth' });
+      });
+
+      // Close mobile sidebar on link click
+      sidebar?.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth < 1024) closeMobileSidebar();
+        });
+      });
+
+      // Load admin profile globally across all admin pages
+      function updateTopbarProfile() {
+        const stored = localStorage.getItem('vo_admin_profile');
+        if (stored) {
+          try {
+            const data = JSON.parse(stored);
+            const topbarName = document.getElementById('topbar-admin-name');
+            const topbarAvatar = document.getElementById('topbar-admin-avatar') as HTMLImageElement | null;
+            const sidebarName = document.getElementById('sidebar-admin-name');
+            const sidebarAvatar = document.getElementById('sidebar-admin-avatar') as HTMLImageElement | null;
+            
+            if (topbarName && data.name) topbarName.textContent = data.name;
+            if (topbarAvatar && data.avatar) topbarAvatar.src = data.avatar;
+            if (sidebarName && data.name) sidebarName.textContent = data.name;
+            if (sidebarAvatar && data.avatar) sidebarAvatar.src = data.avatar;
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }
+
+      updateTopbarProfile();
+
+      // Master sync: Tarik pembaharuan terkini dari Supabase di background
+      pullLatestFromSupabase();
+
+      // Logout handler
+      document.getElementById('admin-logout-btn')?.addEventListener('click', () => {
+        sessionStorage.removeItem('vo_admin_logged_in');
+      });
+    </script>
+  </body>
+</html>
