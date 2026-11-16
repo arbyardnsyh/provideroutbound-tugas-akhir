@@ -161,6 +161,7 @@ const structuredData = {
                   width="48"
                   height="48"
                   loading="lazy"
+                  onerror="this.onerror=null; this.src='/images/authors/gambar-author-artikel-arby-ardiansyah.webp';"
                 />
               </div>
               <div class="author-info">
@@ -266,11 +267,13 @@ const structuredData = {
             <div class="author-bio">
               <div class="avatar">
                 <img
+                  id="art-author-bio-avatar"
                   src={authorAvatar}
                   alt={authorName}
                   width="72"
                   height="72"
                   loading="lazy"
+                  onerror="this.onerror=null; this.src='/images/authors/gambar-author-artikel-arby-ardiansyah.webp';"
                 />
               </div>
               <div class="info">
@@ -600,6 +603,12 @@ const structuredData = {
           if (found.authorName) {
             var an = document.getElementById('art-author-name');
             if (an) an.textContent = found.authorName;
+          }
+          if (found.authorAvatar) {
+            var av = document.getElementById('art-author-avatar');
+            if (av) av.src = found.authorAvatar;
+            var bioAv = document.getElementById('art-author-bio-avatar');
+            if (bioAv) bioAv.src = found.authorAvatar;
           }
           if (found.readingTimeMinutes) {
             var rt = document.getElementById('art-reading-time');
