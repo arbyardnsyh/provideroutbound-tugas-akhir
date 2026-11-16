@@ -506,7 +506,7 @@ export async function pullLatestFromSupabase() {
         canonicalUrl: b.canonical_url,
         publishedAt: b.published_at ? new Date(b.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Terbaru 2026',
         authorName: 'Arby Ardiansyah',
-        authorAvatar: '/images/author-artikel/author-artikel-arby-ardiansyah.webp'
+        authorAvatar: '/images/author-artikel/gambar-author-artikel-arby-ardiansyah.webp'
       }));
       localStorage.setItem('vo_blog', JSON.stringify(formatted));
       localStorage.setItem('vo_blogs', JSON.stringify(formatted));
