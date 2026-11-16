@@ -184,12 +184,15 @@ async function runTests() {
     // 51. services CRUD
     try {
       const testSlug = 'test-layanan-scenario';
-      const { error: insErr } = await supabase.from('services').upsert({
+      const svcPayload = {
         slug: testSlug,
         title: 'Uji Layanan Skenario',
         excerpt: 'Deskripsi ringkas layanan outbound',
+        content: { overview: 'Deskripsi lengkap layanan outbound' },
+        image_url: '/images/services/outbound-perusahaan.webp',
         updated_at: new Date().toISOString()
-      }, { onConflict: 'slug' });
+      };
+      const { error: insErr } = await supabase.from('services').upsert(svcPayload, { onConflict: 'slug' });
       const { data: svc } = await supabase.from('services').select('*').eq('slug', testSlug).single();
       await supabase.from('services').delete().eq('slug', testSlug);
       record(51, 'Supabase CRUD', 'Tabel services: Live Upsert, Read & Delete', !insErr && Boolean(svc && svc.slug === testSlug));
@@ -200,14 +203,16 @@ async function runTests() {
     // 52. packages CRUD
     try {
       const testPkgSlug = 'test-paket-scenario';
-      const { error: insErr } = await supabase.from('packages').upsert({
+      const pkgPayload = {
         slug: testPkgSlug,
         title: 'Uji Paket Skenario',
         excerpt: 'Paket outbound uji coba skenario otomatis',
+        image_url: '/images/packages/team-building.webp',
         price_label: 'Mulai Rp 100.000',
         duration: '1 Hari',
         updated_at: new Date().toISOString()
-      }, { onConflict: 'slug' });
+      };
+      const { error: insErr } = await supabase.from('packages').upsert(pkgPayload, { onConflict: 'slug' });
       const { data: pkg } = await supabase.from('packages').select('*').eq('slug', testPkgSlug).single();
       await supabase.from('packages').delete().eq('slug', testPkgSlug);
       record(52, 'Supabase CRUD', 'Tabel packages: Live Upsert, Read & Delete', !insErr && Boolean(pkg && pkg.slug === testPkgSlug));
@@ -235,13 +240,16 @@ async function runTests() {
     // 54. blog_posts CRUD
     try {
       const testPostSlug = 'test-artikel-scenario';
-      const { error: insErr } = await supabase.from('blog_posts').upsert({
+      const postPayload = {
         slug: testPostSlug,
         title: 'Uji Artikel Skenario',
         excerpt: 'Ringkasan artikel uji coba skenario',
-        body: 'Konten artikel uji coba skenario.',
+        body: 'Konten artikel uji coba skenario lengkap.',
+        thumbnail_url: '/images/blog/panduan-lengkap-corporate-gathering-malang.webp',
+        image_alt: 'Foto Uji Artikel Skenario',
         updated_at: new Date().toISOString()
-      }, { onConflict: 'slug' });
+      };
+      const { error: insErr } = await supabase.from('blog_posts').upsert(postPayload, { onConflict: 'slug' });
       const { data: post } = await supabase.from('blog_posts').select('*').eq('slug', testPostSlug).single();
       await supabase.from('blog_posts').delete().eq('slug', testPostSlug);
       record(54, 'Supabase CRUD', 'Tabel blog_posts: Live Upsert, Read & Delete', !insErr && Boolean(post && post.slug === testPostSlug));

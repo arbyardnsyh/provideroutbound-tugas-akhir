@@ -64,6 +64,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
   <script>
     import { DEFAULT_LEADS } from '../../lib/adminStore';
+    import { isSupabaseConfigured, supabase } from '../../lib/supabase';
 
     const tbody = document.getElementById('leads-table-body');
     const searchInput = document.getElementById('lead-search-input') as HTMLInputElement | null;
@@ -77,6 +78,20 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     function saveLeads(leads: any[]) {
       localStorage.setItem('vo_leads', JSON.stringify(leads));
       renderTable();
+    }
+
+    async function fetchLeadsFromSupabase() {
+      if (isSupabaseConfigured && supabase) {
+        try {
+          const { data, error } = await supabase.from('leads').select('*').order('created_at', { ascending: false });
+          if (!error && data && data.length > 0) {
+            localStorage.setItem('vo_leads', JSON.stringify(data));
+            renderTable();
+          }
+        } catch (e) {
+          console.warn('Gagal memuat leads dari Supabase:', e);
+        }
+      }
     }
 
     function renderTable() {
@@ -166,13 +181,16 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
       // Attach event listeners for status change
       document.querySelectorAll<HTMLSelectElement>('.status-changer').forEach(sel => {
-        sel.addEventListener('change', (e) => {
+        sel.addEventListener('change', async (e) => {
           const target = e.target as HTMLSelectElement;
           const idx = Number(target.dataset.leadIdx);
           const allLeads = getLeads();
           if (allLeads[idx]) {
             allLeads[idx].status = target.value;
             saveLeads(allLeads);
+            if (isSupabaseConfigured && supabase && allLeads[idx].id) {
+              await supabase.from('leads').update({ status: target.value }).eq('id', allLeads[idx].id);
+            }
           }
         });
       });
@@ -190,8 +208,12 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
             confirmText: 'Ya, Hapus Lead'
           });
           if (confirmed !== false) {
+            const leadToDelete = allLeads[idx];
             allLeads.splice(idx, 1);
             saveLeads(allLeads);
+            if (isSupabaseConfigured && supabase && leadToDelete?.id) {
+              await supabase.from('leads').delete().eq('id', leadToDelete.id);
+            }
             (window as any).showAdminNotification?.(
               'Lead Dihapus',
               `Data lead dari "${target?.name || ''}" berhasil dihapus.`
@@ -202,6 +224,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     }
 
     renderTable();
+    fetchLeadsFromSupabase();
 
     searchInput?.addEventListener('input', renderTable);
     filterSelect?.addEventListener('change', renderTable);

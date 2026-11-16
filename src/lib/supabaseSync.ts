@@ -550,6 +550,12 @@ export async function pullLatestFromSupabase() {
       localStorage.setItem('vo_supabase_pages', JSON.stringify(dbPages));
     }
 
+    // Pull leads
+    const { data: dbLeads } = await supabase.from('leads').select('*').order('created_at', { ascending: false });
+    if (dbLeads && dbLeads.length > 0) {
+      localStorage.setItem('vo_leads', JSON.stringify(dbLeads));
+    }
+
     // Dispatch sync events to refresh UI across tabs
     window.dispatchEvent(new CustomEvent('vo_content_updated', { detail: { key: 'supabase_pull_complete' } }));
     window.dispatchEvent(new Event('storage'));
